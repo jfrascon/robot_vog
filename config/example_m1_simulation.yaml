@@ -1,0 +1,69 @@
+# This file shows the full simulation configuration for the model 'm1' of the
+# `robot_agr_4sw` robot.
+# If you need to customize the simulation configuration, create a new file and pass it as a value for the parameter
+# 'sim_file' in the launch file 'm1.launch.py' or 'm2.launch.py'.
+
+# Plugin to control the mobile base in velocity.
+base_velocity_controller:
+  enabled: True
+  topic: cmd_vel
+  initial_linear_vel: { "x": 0.0, "y": 0.0, "z": 0.0 }
+  initial_angular_vel: { "x": 0.0, "y": 0.0, "z": 0.0 }
+
+base_pose_ground_truth_publisher:
+  enabled: True
+  fixed_frame: map
+  offset: { "x": 0.0, "y": 0.0, "z": 0.0, "R": 0.0, "P": 0.0, "Y": 0.0 }
+  global_offset: { "x": 0.0, "y": 0.0, "z": 0.0, "R": 0.0, "P": 0.0, "Y": 0.0 }
+  gaussian_noise: 0.0
+  publication_frequency: 50.0
+  nav_topic_no_cov: base_pose_ground_truth_no_cov # published
+  nav_topic_cov: base_pose_ground_truth           # published
+  tf_topic: tf_sim_world_fr_robot_root_fr         # published
+
+# Plugin to control the steering joint of the steerable wheel 0
+base_steerable_wheel_0_steering_joint_controller:
+  enabled: True
+  initial_angle: 0.0
+  topic: joint_commands/base # received
+
+# Plugin to control the steering joint of the steerable wheel 1
+base_steerable_wheel_1_steering_joint_controller:
+  enabled: True
+  initial_angle: 0.0
+  topic: joint_commands/base # received
+
+# Plugin to control the steering joint of the steerable wheel 2
+base_steerable_wheel_2_steering_joint_controller:
+  enabled: True
+  initial_angle: 0.0
+  topic: joint_commands/base # received
+
+# Plugin to control the rotation of the steerable wheels.
+# It has visual purposes only, since the motion of the platform is controlled by
+# the base_velocity_controller.
+# If disabled, the wheels will not rotate visually, but the platform will still
+# move correctly.
+base_steerable_wheel_0_rotation_joint_controller:
+  enabled: True
+  topic: joint_commands/base # received
+
+base_steerable_wheel_1_rotation_joint_controller:
+  enabled: True
+  topic: joint_commands/base # received
+
+base_steerable_wheel_2_rotation_joint_controller:
+  enabled: True
+  topic: joint_commands/base # received
+
+# Plugin to control the fork in position.
+fork_controller:
+  enabled: True
+  initial_position: 0.0
+  topic: joint_commands/fork # received
+
+
+# Plugin to publish the joint states of the robot.
+joint_state_publisher:
+  enabled: True
+  topic: joint_states # published

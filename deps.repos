@@ -1,0 +1,26 @@
+# This is a template for creating a repository file. Replace the placeholders with actual values.
+#
+# Recommendations:
+# - For referencing internal repositories from Eurecat or private code repositories, it is advised to use
+#   SSH URLs (e.g., git@<server>:<repository_path>). This method requires:
+#     1. Possession of an SSH key pair (private and public keys).
+#     2. The public key must be registered in the private repository from which you want to download code.
+# - For projects hosted on public servers like GitHub, it is recommended to use HTTPS URLs
+#   (e.g., https://<server>/<repository_path>).
+#
+repositories:
+    robotics_description:
+        type: git
+        url: https://github.com/jfrascon/robotics_description.git
+        version: e87fa40fda275013a8dfe81bdbb0c0a2c5965e7c
+        #exclude: [] # list of repos files inside repository_path to exclude (optional)
+    ground_vehicle_kinematics:
+        type: git
+        url: https://github.com/jfrascon/ground_vehicle_kinematics.git
+        version: b9d7de071b058ce4fca8622043f54a253586a0eb
+        #exclude: [] # list of repos files inside repository_path to exclude (optional)
+    ros2_launch_helpers:
+        type: git
+        url: https://github.com/jfrascon/ros2_launch_helpers.git
+        version: main
+        #exclude: [] # list of repos files inside repository_path to exclude (optional)

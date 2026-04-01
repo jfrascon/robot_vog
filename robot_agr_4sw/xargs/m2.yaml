@@ -1,0 +1,158 @@
+# All xarg values in this file are stored as strings.
+# This includes numbers, booleans and any other scalar values.
+fork_use_inertial:
+  default_value: "False"
+  description: "Use inertial element for the fork."
+  choices: ["True", "true", "False", "false"]
+fork_color:
+  default_value: "0.1 0.1 0.1 1.0"
+  description: "Fork color as 'r g b a'."
+fork_limits:
+  default_value: "-0.01 0.8 0.5 20000.0"
+  description: "Fork prismatic joint limits as 'lower upper velocity effort'."
+fork_tines_rest_clearance:
+  default_value: "0.03"
+  description: "Rest clearance between the fork tines and the ground."
+fork_rgbd_use_visual:
+  default_value: "True"
+  description: "Include visual element for the RGBD camera mounted on the fork."
+  choices: ["True", "true", "False", "false"]
+fork_rgbd_use_collision:
+  default_value: "True"
+  description: "Include collision element for the RGBD camera mounted on the fork."
+  choices: ["True", "true", "False", "false"]
+fork_rgbd_use_inertial:
+  default_value: "True"
+  description: "Include inertial element for the RGBD camera mounted on the fork."
+  choices: ["True", "true", "False", "false"]
+fork_rgbd_use_v_mesh:
+  default_value: "True"
+  description: "Use a mesh for the fork RGBD visual. If False, use a primitive."
+  choices: ["True", "true", "False", "false"]
+fork_rgbd_color:
+  default_value: "0.5 0.5 0.5 1.0"
+  description: "Optional fork RGBD color override 'r g b a'. Empty keeps mesh color."
+fork_rgbd_use_c_mesh:
+  default_value: "False"
+  description: "Use a mesh for the fork RGBD collision. If False, use a primitive."
+  choices: ["True", "true", "False", "false"]
+left_tine_rgbd_use_visual:
+  default_value: "True"
+  description: "Include visual element for the left tine RGBD camera."
+  choices: ["True", "true", "False", "false"]
+left_tine_rgbd_use_collision:
+  default_value: "True"
+  description: "Include collision element for the left tine RGBD camera."
+  choices: ["True", "true", "False", "false"]
+left_tine_rgbd_use_inertial:
+  default_value: "True"
+  description: "Include inertial element for the left tine RGBD camera."
+  choices: ["True", "true", "False", "false"]
+left_tine_rgbd_use_v_mesh:
+  default_value: "True"
+  description: "Use a mesh for left tine RGBD visual. If False, use a primitive."
+  choices: ["True", "true", "False", "false"]
+left_tine_rgbd_color:
+  default_value: "0.5 0.5 0.5 1.0"
+  description: "Optional left tine RGBD color override 'r g b a'. Empty keeps mesh color."
+left_tine_rgbd_use_c_mesh:
+  default_value: "False"
+  description: "Use a mesh for left tine RGBD collision. If False, use a primitive."
+  choices: ["True", "true", "False", "false"]
+right_tine_rgbd_use_visual:
+  default_value: "True"
+  description: "Include visual element for the right tine RGBD camera."
+  choices: ["True", "true", "False", "false"]
+right_tine_rgbd_use_collision:
+  default_value: "True"
+  description: "Include collision element for the right tine RGBD camera."
+  choices: ["True", "true", "False", "false"]
+right_tine_rgbd_use_inertial:
+  default_value: "True"
+  description: "Include inertial element for the right tine RGBD camera."
+  choices: ["True", "true", "False", "false"]
+right_tine_rgbd_use_v_mesh:
+  default_value: "True"
+  description: "Use a mesh for right tine RGBD visual. If False, use a primitive."
+  choices: ["True", "true", "False", "false"]
+right_tine_rgbd_color:
+  default_value: "0.5 0.5 0.5 1.0"
+  description: "Optional right tine RGBD color override 'r g b a'. Empty keeps mesh color."
+right_tine_rgbd_use_c_mesh:
+  default_value: "False"
+  description: "Use a mesh for right tine RGBD collision. If False, use a primitive."
+  choices: ["True", "true", "False", "false"]
+back_top_lidar_use_visual:
+  default_value: "True"
+  description: "Include visual element for the back top lidar body."
+  choices: ["True", "true", "False", "false"]
+back_top_lidar_use_collision:
+  default_value: "True"
+  description: "Include collision element for the back top lidar body."
+  choices: ["True", "true", "False", "false"]
+back_top_lidar_use_inertial:
+  default_value: "True"
+  description: "Include inertial element for the back top lidar body."
+  choices: ["True", "true", "False", "false"]
+back_top_lidar_use_v_mesh:
+  default_value: "True"
+  description: "Use a mesh for back top lidar visual. If False, use a primitive."
+  choices: ["True", "true", "False", "false"]
+back_top_lidar_v_mesh_use_low_res:
+  default_value: "True"
+  description: "Prefer low-resolution mesh for back top lidar visual when using mesh."
+  choices: ["True", "true", "False", "false"]
+back_top_lidar_color:
+  default_value: ""
+  description: "Optional back top lidar color override 'r g b a'. Empty keeps mesh color."
+back_top_lidar_use_c_mesh:
+  default_value: "False"
+  description: "Use a mesh for back top lidar collision. If False, use a primitive."
+  choices: ["True", "true", "False", "false"]
+back_top_lidar_c_mesh_use_low_res:
+  default_value: "False"
+  description: "Prefer low-resolution mesh for back top lidar collision when using mesh."
+  choices: ["True", "true", "False", "false"]
+back_top_lidar_tilt_angle_deg:
+  default_value: "20.0"
+  description: "Pitch tilt angle in degrees for the back top lidar."
+back_top_lidar_offset_z:
+  default_value: "0.02"
+  description: "Extra z offset in meters for the back top lidar root frame."
+front_top_lidar_use_visual:
+  default_value: "True"
+  description: "Include visual element for the front top lidar body."
+  choices: ["True", "true", "False", "false"]
+front_top_lidar_use_collision:
+  default_value: "True"
+  description: "Include collision element for the front top lidar body."
+  choices: ["True", "true", "False", "false"]
+front_top_lidar_use_inertial:
+  default_value: "True"
+  description: "Include inertial element for the front top lidar body."
+  choices: ["True", "true", "False", "false"]
+front_top_lidar_use_v_mesh:
+  default_value: "True"
+  description: "Use a mesh for front top lidar visual. If False, use a primitive."
+  choices: ["True", "true", "False", "false"]
+front_top_lidar_v_mesh_use_low_res:
+  default_value: "True"
+  description: "Prefer low-resolution mesh for front top lidar visual when using mesh."
+  choices: ["True", "true", "False", "false"]
+front_top_lidar_color:
+  default_value: ""
+  description: "Optional front top lidar color override 'r g b a'. Empty keeps mesh color."
+front_top_lidar_use_c_mesh:
+  default_value: "False"
+  description: "Use a mesh for front top lidar collision. If False, use a primitive."
+  choices: ["True", "true", "False", "false"]
+front_top_lidar_c_mesh_use_low_res:
+  default_value: "False"
+  description: "Prefer low-resolution mesh for front top lidar collision when using mesh."
+  choices: ["True", "true", "False", "false"]
+front_top_lidar_tilt_angle_deg:
+  default_value: "20.0"
+  description: "Pitch tilt angle in degrees for the front top lidar."
+front_top_lidar_offset_z:
+  default_value: "0.02"
+  description: "Extra z offset in meters for the front top lidar root frame."

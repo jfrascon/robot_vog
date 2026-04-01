@@ -1,0 +1,109 @@
+/**/robot_state_publisher:
+  ros__parameters:
+    publish_frequency: 20.0
+    ignore_timestamp: False # If True joint_state messages are accepted, no matter their timestamp
+    # frame_prefix is not accepted
+    # robot_description is set in the launch file
+
+/**/four_swerve_kinematics:
+  ros__parameters:
+    # use_sim_time IS automatically handled, no need to specify here.
+
+    # Why this parameter exists:
+    # Inverse kinematics can have more than one valid solution.
+    # To choose the best one, the node needs the current wheel states from the last received
+    # JointState message.
+    # If no JointState has arrived yet, the current state is unknown and the first command can be
+    # abrupt.
+    # This value defines a waiting time at startup to receive that first JointState.
+    # During this waiting time, twist commands are ignored.
+    # Commands are accepted when the first JointState arrives or when the waiting time expires.
+    initial_wheel_states_reception_period: 10.0 # seconds
+
+    # Numerical parameters of the direct-kinematics least-squares solver.
+    direct_solver:
+      relative_singular_value_threshold: 1.0e-6
+      tikhonov_lambda: 1.0e-4
+
+    # Read the document package://ground_vehicle_kinematics/doc/kinematics_en.pdf
+    # for more details about the kinematic configuration described in this parameter file.
+
+    # Wheel positions are described per wheel.
+    # Each wheel uses:
+    # - radius: wheel radius
+    # - dist: distance from the robot base origin to the wheel position
+    # - alpha: wheel position angle in radians
+    # - beta: wheel orientation angle in radians
+
+    steerable_wheels:
+      # The steerable_wheels presented here define the rbvogui geometry:
+      # - steerable_wheel_0: front-left wheel
+      # - steerable_wheel_1: front-right wheel
+      # - steerable_wheel_2: rear-left wheel
+      # - steerable_wheel_3: rear-right wheel
+
+      steerable_wheel_0:
+        radius: 0.117494
+        dist: 0.4366337137693332
+        alpha: 0.5683101050173379 # rad
+        beta: 1.0024862217775588 # rad = pi/2 - alpha_0
+        name: "$(var robot_prefix)steerable_wheel_0"
+        steering_joint:
+          name: "$(var robot_prefix)steerable_wheel_0_steering_joint"
+          # Note: If you want the wheel to be able to reach +-pi rad angle (+-180 degrees), set limits to +-3.1416.
+          # pi = 3.141592654.... < 3.1416
+          limits: { lower: -3.1416, upper: 3.1416 } # rad
+        rotation_joint:
+          name: "$(var robot_prefix)steerable_wheel_0_rotation_joint"
+          limits: { lower: -100.0, upper: 100.0 } # rad/s
+
+      steerable_wheel_1:
+        radius: 0.117494
+        dist: 0.4366337137693332
+        alpha: -0.5683101050173379 # rad
+        beta: 2.1391064318122344 # rad = pi/2 - alpha_1
+        name: "$(var robot_prefix)steerable_wheel_1"
+        steering_joint:
+          name: "$(var robot_prefix)steerable_wheel_1_steering_joint"
+          # Note: If you want the wheel to be able to reach +-pi rad angle (+-180 degrees), set limits to +-3.1416.
+          # pi = 3.141592654.... < 3.1416
+          limits: { lower: -3.1416, upper: 3.1416 } # rad
+        rotation_joint:
+          name: "$(var robot_prefix)steerable_wheel_1_rotation_joint"
+          limits: { lower: -100.0, upper: 100.0 } # rad/s
+
+      steerable_wheel_2:
+        radius: 0.117494
+        dist: 0.4366337137693332
+        alpha: 2.5732825485724553 # rad
+        beta: -1.0024862217775588 # rad = pi/2 - alpha_2
+        name: "$(var robot_prefix)steerable_wheel_2"
+        steering_joint:
+          name: "$(var robot_prefix)steerable_wheel_2_steering_joint"
+          # Note: If you want the wheel to be able to reach +-pi rad angle (+-180 degrees), set limits to +-3.1416.
+          # pi = 3.141592654.... < 3.1416
+          limits: { lower: -3.1416, upper: 3.1416 } # rad
+        rotation_joint:
+          name: "$(var robot_prefix)steerable_wheel_2_rotation_joint"
+          limits: { lower: -100.0, upper: 100.0 } # rad/s
+
+      steerable_wheel_3:
+        radius: 0.117494
+        dist: 0.4366337137693332
+        alpha: -2.5732825485724553 # rad
+        beta: 4.144078875367352 # rad = pi/2 - alpha_3
+        name: "$(var robot_prefix)steerable_wheel_3"
+        steering_joint:
+          name: "$(var robot_prefix)steerable_wheel_3_steering_joint"
+          # Note: If you want the wheel to be able to reach +-pi rad angle (+-180 degrees), set limits to +-3.1416.
+          # pi = 3.141592654.... < 3.1416
+          limits: { lower: -3.1416, upper: 3.1416 } # rad
+        rotation_joint:
+          name: "$(var robot_prefix)steerable_wheel_3_rotation_joint"
+          limits: { lower: -100.0, upper: 100.0 } # rad/s
+
+/**/bridge:
+  ros__parameters:
+    subscription_heartbeat: 1000
+    # config_file, expand_gz_topic_names and override_timestamps_with_wall_time
+    # are forced in the model launch file. See 'm1.launch.py' or 'm2.launch.py' for details.
