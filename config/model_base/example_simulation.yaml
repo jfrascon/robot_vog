@@ -1,7 +1,6 @@
-# This file shows the full simulation configuration for the model 'm1' of the
-# `robot_agr_4sw` robot.
-# If you need to customize the simulation configuration, create a new file and pass it as a value for the parameter
-# 'sim_file' in the launch file 'm1.launch.py' or 'm2.launch.py'.
+# This file shows the full simulation configuration for the `base` model of the `vog` robot.
+# If you need to customize the simulation configuration, create a new file and pass it as a value
+# for the parameter 'sim_file' in the used launch file.
 
 # Plugin to control the mobile base in velocity.
 base_velocity_controller:
@@ -18,8 +17,8 @@ base_pose_ground_truth_publisher:
   gaussian_noise: 0.0
   publication_frequency: 50.0
   nav_topic_no_cov: base_pose_ground_truth_no_cov # published
-  nav_topic_cov: base_pose_ground_truth           # published
-  tf_topic: tf_sim_world_fr_robot_root_fr         # published
+  nav_topic_cov: base_pose_ground_truth # published
+  tf_topic: tf_sim_world_fr_robot_root_fr # published
 
 # Plugin to control the steering joint of the steerable wheel 0
 base_steerable_wheel_0_steering_joint_controller:
@@ -35,6 +34,12 @@ base_steerable_wheel_1_steering_joint_controller:
 
 # Plugin to control the steering joint of the steerable wheel 2
 base_steerable_wheel_2_steering_joint_controller:
+  enabled: True
+  initial_angle: 0.0
+  topic: joint_commands/base # received
+
+# Plugin to control the steering joint of the steerable wheel 3
+base_steerable_wheel_3_steering_joint_controller:
   enabled: True
   initial_angle: 0.0
   topic: joint_commands/base # received
@@ -56,12 +61,9 @@ base_steerable_wheel_2_rotation_joint_controller:
   enabled: True
   topic: joint_commands/base # received
 
-# Plugin to control the fork in position.
-fork_controller:
+base_steerable_wheel_3_rotation_joint_controller:
   enabled: True
-  initial_position: 0.0
-  topic: joint_commands/fork # received
-
+  topic: joint_commands/base # received
 
 # Plugin to publish the joint states of the robot.
 joint_state_publisher:

@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<robot name="robot_agr_4sw_common" xmlns:xacro="http://www.ros.org/wiki/xacro" xmlns:gz="http://gazebosim.org/schema">
+<robot name="robot_vog_common" xmlns:xacro="http://www.ros.org/wiki/xacro" xmlns:gz="http://gazebosim.org/schema">
   <!--
-  Common xacro file for the AGR robot with 4 steerable wheels.
+  Common xacro file for the VOG robot with 4 steerable wheels.
   THIS FILE IS NOT A COMPLETE ROBOT MODEL, IT IS MEANT TO BE INCLUDED IN THE SPECIFIC ROBOT MODEL
-  XACRO FILES (FOR EXAMPLE, M1.XACRO AND M2.XACRO).
+  XACRO FILES (FOR EXAMPLE, MODEL_BASE.XACRO AND MODEL_FORKLIFT.XACRO).
 
   The base is composed of the chassis body and four steerable wheels:
   - Steerable wheel 0: front left wheel uses angle +alpha.
@@ -16,22 +16,18 @@
     (-x_0, -y_0)
   Reference: package://ground_vehicle_kinematics/doc/kinematics_en.pdf
 
-  - The chassis mesh is used for visual and collision representation.
+  - The chassis body is always represented as a box for visual and collision.
   - Dynamics are intentionally simplified.
 
   Belly:
-  Some robots have a belly or ballast, which is a heavy component located at the bottom of the
-  chassis to keep the center of mass low and improve stability.
-  Sometimes this belly is a battery, anyway it is a heavy component that is located at the bottom
-  of the chassis.
-  In this model, the belly is optional and disabled by default, so the user can choose whether to
-  include it or not.
-  If included, the user must provide the belly mass and size, and the belly will be modeled as a box
-  located below the chassis, with its frame at the center of the body.
+  The belly is a heavy box located below the chassis.
+  It is always present in this model.
+  Its main purpose is to keep the center of mass low and improve stability.
+  The belly frame is centered with the chassis frame.
   The base_link is always placed at the center of the bottom face of the chassis.
   -->
 
-  <xacro:property name="robot_agr_4sw_pkg_dir"        value="$(find robot_agr_4sw)"/>
+  <xacro:property name="robot_vog_pkg_dir" value="$(find robot_vog)"/>
   <xacro:property name="robotics_description_pkg_dir" value="$(find robotics_description)"/>
 
   <!-- ===================================================================== -->
@@ -47,55 +43,29 @@
   <!-- ARGS -->
   <!-- ===================================================================== -->
   <!--
-  When the xacro file is used in a real deployment, use_sim_mode should be set to False, wich
-  provokes that no simulation plugins are loaded.
+  When the xacro file is used in a real deployment, use_sim_mode should be set to False, therefore
+  simulation plugins are not loaded.
   When the xacro file is used in simulation, use_sim_mode should be set to True, so the simulation
   plugins are loaded.
   -->
   <xacro:arg name="use_sim_mode" default="False"/>
   <xacro:arg name="namespace"    default=""/>
-  <xacro:arg name="robot_name"   default="agr4sw"/>
+  <xacro:arg name="robot_name"   default="vog"/>
   <!--
   File containing the simulation configuration for the selected robot model.
-  base = body + wheels.
+  If it is empty, no simulation YAML is loaded from this file.
   -->
-  <xacro:arg name="sim_file"
-             default="${robot_agr_4sw_pkg_dir}/config/example_m1_simulation.yaml"/>
+  <xacro:arg name="sim_file" default=""/>
+
+  <xacro:arg name="body_color"           default="0.5 0.5 0.5 1.0"/>
+  <xacro:arg name="body_use_inertial"    default="True"/>
+  <xacro:arg name="s_wheel_use_v_mesh"   default="True"/>
+  <xacro:arg name="s_wheel_color"        default="0.1 0.1 0.1 1.0"/>
+  <xacro:arg name="s_wheel_use_inertial" default="True"/>
 
   <!--
-  Args for body.
-  The default values for `mass`, `size` and `inertial` correspond to the default mesh.
-  If the user changes the body mesh, or leaves the default mesh but changes its scale, they should update the
-  corresponding mass and size to maintain a consistent model.
-  In other words, the scale only applies to the mesh, not the physical properties.
-  The user is responsible for ensuring that the parameters are consistent with the chosen mesh.
-  -->
-  <xacro:arg name="body_mesh"             default=""/>
-  <xacro:arg name="body_mesh_scale"       default="1.0 1.0 1.0"/>
-  <xacro:arg name="body_color"            default="0.5 0.5 0.5 1.0"/>
-  <xacro:arg name="body_size"             default="1.044 0.650 0.34"/>
-  <xacro:arg name="body_use_inertial"     default="True"/>
-  <xacro:arg name="body_mass"             default="70"/>
-
-  <xacro:arg name="use_bottom_belly"      default="False"/>
-  <xacro:arg name="belly_mass"            default="0"/>
-  <xacro:arg name="belly_size"            default="0 0 0"/>
-
-  <xacro:arg name="ground_clearance"      default="0.191"/>
-  <xacro:arg name="dist_to_wheels"        default="0.4366337137693332"/>
-  <xacro:arg name="alpha_deg"             default="32.56180140948635"/>
-
-  <xacro:arg name="s_wheel_mesh"          default=""/>
-  <xacro:arg name="s_wheel_mesh_scale"    default="1.0 1.0 1.0"/>
-  <xacro:arg name="s_wheel_color"         default=""/>
-  <xacro:arg name="s_wheel_radius"        default="0.1175"/>
-  <xacro:arg name="s_wheel_thickness"     default="0.142462"/>
-  <xacro:arg name="s_wheel_use_inertial"  default="True"/>
-  <xacro:arg name="s_wheel_mass"          default="7.5"/>
-
-  <!--
-  Note: If you want the wheel to be able to reach +-pi rad angle (+-180 degress), set limits to +-3.1416.
-  pi = 3.141592654.... < 3.1416
+  Note: If you want the wheel to be able to reach +-pi rad angle (+-180 degress), set limits to
+  +-3.1416 (slightly above pi).
   -->
   <xacro:arg name="s_wheel_steering_joint_limits" default="-3.1416 3.1416 100.0 100000.0"/>
   <xacro:arg name="s_wheel_rotation_joint_limits" default="100.0 100000.0"/>
@@ -128,29 +98,14 @@
   configuration from the file. If no configuration file is provided, use an empty configuration, so no gz-plugins are
   loaded.
   -->
-  <xacro:property name="sim_file"    value="$(arg sim_file)"/>
+  <xacro:property name="sim_file" value="$(arg sim_file)"/>
   <xacro:property name="sim_cfg"
                   value="${xacro.load_yaml(sim_file) if use_sim_mode and sim_file != '' else dict()}"/>
 
   <!--
-  The frame of the mesh is centered at its geometric center. This is the same convention used by a
-  URDF box.
-  For that reason, the same visual/collision origin can be used whether the body is represented by
-  a mesh or by a primitive box.
-
-  The body link frame, '${robot_prefix}${base_name}_link', is placed at the center of the bottom
-  face of the mesh, which means the mesh has to be moved 0.5*body_size_z in the +Z direction.
-
-  The mesh does not include embedded color information.
+  The body geometry is fixed in this common file.
+  Only the body color and the decision to publish body inertia remain configurable xacro args.
   -->
-  <xacro:property name="body_mesh"              value="$(arg body_mesh)"/>
-  <xacro:property name="body_mesh_scale"        value="$(arg body_mesh_scale)"/>
-  <xacro:property name="body_mesh_scale_values" value="${body_mesh_scale.split()}"/>
-
-  <xacro:if value="${body_mesh != '' and len(body_mesh_scale_values) != 3}">
-    ${xacro.fatal("xacro arg body_mesh_scale must contain exactly 3 values: x y z")}
-  </xacro:if>
-
   <xacro:property name="body_color"        value="$(arg body_color)"/>
   <xacro:property name="body_color_values" value="${body_color.split()}"/>
 
@@ -158,79 +113,21 @@
     ${xacro.fatal("xacro arg body_color must contain exactly 4 values: r g b a")}
   </xacro:if>
 
-  <xacro:property name="body_size"        value="$(arg body_size)"/>
-  <xacro:property name="body_size_values" value="${body_size.split()}"/>
+  <xacro:property name="body_use_inertial" value="$(arg body_use_inertial)"/>
 
-  <xacro:if value="${len(body_size_values) != 3}">
-    ${xacro.fatal("xacro arg body_size must contain exactly 3 values: x y z")}
-  </xacro:if>
+  <xacro:property name="top_body_size_x"    value="1.044"/>
+  <xacro:property name="top_body_size_y"    value="0.650"/>
+  <xacro:property name="top_body_size_z"    value="0.34"/>
+  <xacro:property name="top_body_mass"      value="25.0"/>
+  <xacro:property name="bottom_body_size_x" value="0.483037"/>
+  <xacro:property name="bottom_body_size_y" value="0.420000"/>
+  <xacro:property name="bottom_body_size_z" value="0.105000"/>
+  <xacro:property name="bottom_body_mass"   value="45"/>
+  <xacro:property name="ground_clearance"   value="0.191"/>
+  <xacro:property name="dist_to_wheels"     value="0.4366337137693332"/>
+  <xacro:property name="alpha_deg"          value="32.56180140948635"/>
 
-  <xacro:property name="body_size_x" value="${float(body_size_values[0])}"/>
-  <xacro:property name="body_size_y" value="${float(body_size_values[1])}"/>
-  <xacro:property name="body_size_z" value="${float(body_size_values[2])}"/>
-
-  <xacro:property name="body_use_inertial"  value="$(arg body_use_inertial)"/>
-
-  <xacro:property name="body_mass"   value="$(arg body_mass)"/>
-
-  <xacro:if value="${body_use_inertial and float(body_mass) &lt;= 0.0}">
-    ${xacro.fatal("xacro arg body_mass must be > 0")}
-  </xacro:if>
-
-  <xacro:property name="use_bottom_belly"   value="$(arg use_bottom_belly)"/>
-  <xacro:property name="belly_mass"         value="$(arg belly_mass)"/>
-
-  <xacro:if value="${use_bottom_belly and float(belly_mass) &lt;= 0.0}">
-    ${xacro.fatal("xacro arg belly_mass must be > 0")}
-  </xacro:if>
-
-  <xacro:property name="belly_size_arg"      value="$(arg belly_size)"/>
-  <xacro:property name="belly_size_values"   value="${belly_size_arg.split() if use_bottom_belly else '0 0 0'.split()}"/>
-
-  <xacro:if value="${use_bottom_belly and len(belly_size_values) != 3}">
-    ${xacro.fatal("xacro arg belly_size must contain exactly 3 values: x y z")}
-  </xacro:if>
-
-  <xacro:property name="belly_size_x" value="${float(belly_size_values[0])}"/>
-  <xacro:property name="belly_size_y" value="${float(belly_size_values[1])}"/>
-  <xacro:property name="belly_size_z" value="${float(belly_size_values[2])}"/>
-
-  <xacro:property name="ground_clearance"  value="$(arg ground_clearance)"/>
-
-  <xacro:if value="${float(ground_clearance) &lt;= 0.0}">
-    ${xacro.fatal("xacro arg ground_clearance must be > 0")}
-  </xacro:if>
-
-  <xacro:property name="dist_to_wheels" value="$(arg dist_to_wheels)"/>
-
-  <xacro:if value="${float(dist_to_wheels) &lt;= 0.0}">
-    ${xacro.fatal("xacro arg dist_to_wheels must be > 0")}
-  </xacro:if>
-
-  <xacro:property name="alpha_deg" value="$(arg alpha_deg)"/>
-
-  <xacro:if value="${float(alpha_deg) &lt;= 0.0 or float(alpha_deg) >= 90.0}">
-    ${xacro.fatal("xacro arg alpha_deg must be in range (0, 90) degrees")}
-  </xacro:if>
-
-  <!--
-  It is required that the frame of the wheel mesh is centered at its geometric center, and oriented
-  in a such way that Z+ is the axis of symmetry of the wheel, i.e, like if the wheel is laying
-  on the ground, Z+ would be vertical, X+ would point forward and Y+ would point to the left.
-  The macro of the steerable wheel is designed to work with meshes that follow this convention, and
-  will rotate the wheel +90 degrees around the x-axis.
-  Wheel always use collision elements, which means 's_wheel_use_collision' is always True.
-  Wheel always use a basic geometry for collision, which means 's_wheel_use_c_mesh' is always False.
-  Read the steerable_wheel macro for more details.
-  -->
-  <xacro:property name="s_wheel_mesh"              value="$(arg s_wheel_mesh)"/>
-  <xacro:property name="s_wheel_mesh_scale"        value="$(arg s_wheel_mesh_scale)"/>
-  <xacro:property name="s_wheel_mesh_scale_values" value="${s_wheel_mesh_scale.split()}"/>
-
-  <xacro:if value="${s_wheel_mesh != '' and len(s_wheel_mesh_scale_values) != 3}">
-    ${xacro.fatal("xacro arg s_wheel_mesh_scale must contain exactly 3 values: x y z")}
-  </xacro:if>
-
+  <xacro:property name="s_wheel_use_v_mesh"   value="$(arg s_wheel_use_v_mesh)"/>
   <xacro:property name="s_wheel_color"        value="$(arg s_wheel_color)"/>
   <xacro:property name="s_wheel_color_values" value="${s_wheel_color.split()}"/>
 
@@ -238,24 +135,47 @@
     ${xacro.fatal("xacro arg s_wheel_color must contain exactly 4 values: r g b a")}
   </xacro:if>
 
-  <xacro:property name="s_wheel_radius"       value="$(arg s_wheel_radius)"/>
-
-  <xacro:if value="${float(s_wheel_radius) &lt;= 0.0}">
-    ${xacro.fatal("xacro arg s_wheel_radius must be > 0")}
-  </xacro:if>
-
-  <xacro:property name="s_wheel_thickness"    value="$(arg s_wheel_thickness)"/>
-
-  <xacro:if value="${float(s_wheel_thickness) &lt;= 0.0}">
-    ${xacro.fatal("xacro arg s_wheel_thickness must be > 0")}
-  </xacro:if>
-
   <xacro:property name="s_wheel_use_inertial" value="$(arg s_wheel_use_inertial)"/>
 
-  <xacro:property name="s_wheel_mass"         value="$(arg s_wheel_mass)"/>
+  <!--
+  For prismatic joints, setting the rest position exactly at a limit can cause lock-up because of
+  numerical precision during initialization. The simulator may spawn the joint slightly outside the
+  valid range.
+  Example: if the lower limit is 0 and the rest position is set to 0, the initialized value might
+  be a tiny negative number (for example, -1.9e-12). Even this small violation can block motion.
+  Effort controllers are not affected.
+  To avoid this issue when the rest position is at the lower bound, set 'lower_limit' slightly below
+  the intended physical bound. The same applies to the upper bound: if the rest position is at the
+  upper limit, set 'upper_limit' slightly above the intended value.
+  The required margin is very small, so the practical effect on behavior is negligible.
+  If the rest position is not at either limit (for example, near the middle of the range), no extra
+  margin is usually needed.
+  -->
 
-  <xacro:if value="${s_wheel_use_inertial and float(s_wheel_mass) &lt;= 0.0}">
-    ${xacro.fatal("xacro arg s_wheel_mass must be > 0")}
+  <xacro:property name="s_wheel_steering_joint_limits"
+                  value="$(arg s_wheel_steering_joint_limits)"/>
+
+  <xacro:property name="s_wheel_steering_joint_limits_values"
+                  value="${s_wheel_steering_joint_limits.split()}"/>
+
+  <xacro:if value="${len(s_wheel_steering_joint_limits_values) != 4}">
+    ${xacro.fatal(
+    "xacro arg s_wheel_steering_joint_limits must contain exactly 4 values: "
+    "lower_limit upper_limit velocity effort"
+    )}
+  </xacro:if>
+
+  <xacro:property name="s_wheel_rotation_joint_limits"
+                  value="$(arg s_wheel_rotation_joint_limits)"/>
+
+  <xacro:property name="s_wheel_rotation_joint_limits_values"
+                  value="${s_wheel_rotation_joint_limits.split()}"/>
+
+  <xacro:if value="${len(s_wheel_rotation_joint_limits_values) != 2}">
+    ${xacro.fatal(
+    "xacro arg s_wheel_rotation_joint_limits must contain exactly 2 values: "
+    "velocity effort"
+    )}
   </xacro:if>
 
   <!--
@@ -271,31 +191,6 @@
   with the control.
   Read the macro 'steerable_wheel_macro.xacro' for more details about these limit parameters.
   -->
-  <xacro:property name="s_wheel_steering_joint_type"   value="revolute"/>
-  <xacro:property name="s_wheel_steering_joint_limits" value="$(arg s_wheel_steering_joint_limits)"/>
-
-  <xacro:property name="s_wheel_steering_joint_limits_values"
-                  value="${s_wheel_steering_joint_limits.split()}"/>
-
-  <xacro:if value="${len(s_wheel_steering_joint_limits_values) != 4}">
-    ${xacro.fatal(
-      "xacro arg s_wheel_steering_joint_limits must contain exactly 4 values: "
-      "lower_limit upper_limit velocity effort"
-    )}
-  </xacro:if>
-
-  <xacro:property name="s_wheel_rotation_joint_type"   value="continuous"/>
-
-  <xacro:property name="s_wheel_rotation_joint_limits" value="$(arg s_wheel_rotation_joint_limits)"/>
-  <xacro:property name="s_wheel_rotation_joint_limits_values"
-                  value="${s_wheel_rotation_joint_limits.split()}"/>
-
-  <xacro:if value="${len(s_wheel_rotation_joint_limits_values) != 2}">
-    ${xacro.fatal(
-      "xacro arg s_wheel_rotation_joint_limits must contain exactly 2 values: "
-      "velocity effort"
-    )}
-  </xacro:if>
 
   <xacro:property name="s_wheel_max_contacts" value="$(arg s_wheel_max_contacts)"/>
   <xacro:property name="s_wheel_mu"           value="$(arg s_wheel_mu)"/>
@@ -304,25 +199,33 @@
   <xacro:property name="s_wheel_slip2"        value="$(arg s_wheel_slip2)"/>
 
   <!--
-  For prismatic joints, setting the rest position exactly at a limit can cause lock-up because of numerical precision
-  during initialization. The simulator may spawn the joint slightly outside the valid range.
-  Example: if the lower limit is 0 and the rest position is set to 0, the initialized value might be a tiny negative
-  number (for example, -1.9e-12). Even this small violation can block motion.
-  Effort controllers are not affected.
-  To avoid this issue when the rest position is at the lower bound, set 'lower_limit' slightly below the intended
-  physical bound. The same applies to the upper bound: if the rest position is at the upper limit, set 'upper_limit'
-  slightly above the intended value.
-  The required margin is very small, so the practical effect on behavior is negligible.
-  If the rest position is not at either limit (for example, near the middle of the range), no extra margin is usually
-  needed.
+  It is required that the frame of the wheel mesh is centered at its geometric center, and oriented
+  in a such way that Z+ is the axis of symmetry of the wheel, i.e, like if the wheel is laying
+  on the ground, Z+ would be vertical, X+ would point forward and Y+ would point to the left.
+  The wheel mesh path is fixed in this common file.
+  The only public wheel visual choice is whether to use that built-in mesh or to use the primitive
+  cylinder visual instead.
+  When the built-in mesh is used, the mesh must follow the convention described below.
+  The macro of the steerable wheel will rotate that geometry +90 degrees around the x-axis.
+  Wheel always use collision elements, which means 's_wheel_use_collision' is always True.
+  Wheel always use a basic geometry for collision, which means 's_wheel_use_c_mesh' is always False.
+  Read the steerable_wheel macro for more details.
   -->
+  <xacro:property name="s_wheel_mesh"
+                  value="${'robotics_description/meshes/wheels/standard_wheels/rubber_wheel_2.stl' if s_wheel_use_v_mesh else ''}"/>
+  <xacro:property name="s_wheel_mesh_scale"          value="1.0 1.0 1.0"/>
+  <xacro:property name="s_wheel_radius"              value="0.1175"/>
+  <xacro:property name="s_wheel_thickness"           value="0.142462"/>
+  <xacro:property name="s_wheel_mass"                value="7.5"/>
+  <xacro:property name="s_wheel_steering_joint_type" value="revolute"/>
+  <xacro:property name="s_wheel_rotation_joint_type" value="continuous"/>
 
   <!-- Names for components -->
-  <xacro:property name="base_name"                value="base"/>
-  <xacro:property name="steerable_wheel_0_name"   value="steerable_wheel_0"/>
-  <xacro:property name="steerable_wheel_1_name"   value="steerable_wheel_1"/>
-  <xacro:property name="steerable_wheel_2_name"   value="steerable_wheel_2"/>
-  <xacro:property name="steerable_wheel_3_name"   value="steerable_wheel_3"/>
+  <xacro:property name="base_name"              value="base"/>
+  <xacro:property name="steerable_wheel_0_name" value="steerable_wheel_0"/>
+  <xacro:property name="steerable_wheel_1_name" value="steerable_wheel_1"/>
+  <xacro:property name="steerable_wheel_2_name" value="steerable_wheel_2"/>
+  <xacro:property name="steerable_wheel_3_name" value="steerable_wheel_3"/>
 
   <!-- ===================================================================== -->
   <!-- Definition of links and joints for the rectangular base -->
@@ -335,120 +238,115 @@
   <link name="${robot_prefix}${base_name}_footprint_link"/>
 
   <link name="${robot_prefix}${base_name}_link">
-    <visual>
-      <xacro:if value="${body_mesh != ''}">
-        <geometry>
-          <mesh filename="package://${body_mesh}" scale="${body_mesh_scale}"/>
-        </geometry>
-      </xacro:if>
-      <xacro:if value="${body_mesh == ''}">
-        <geometry>
-          <box size="${body_size}"/>
-        </geometry>
-      </xacro:if>
-      <!--
-      The stl is required to have its frame located at its geometric center.
-      By using rpy="0 0 0" and xyz="0 0 0.5*body_size_z", the link
-      `${robot_prefix}${base_name}_link` is located at the center of the bottom
-      face of the mesh.
-       -->
-      <origin rpy="0 0 0" xyz="0 0 ${0.5 * body_size_z}"/>
-      <material name="${robot_prefix}${base_name}_color">
-        <color rgba="${body_color}"/>
-      </material>
-    </visual>
-
-    <collision>
-      <xacro:if value="${body_mesh != ''}">
-        <geometry>
-          <mesh filename="package://${body_mesh}" scale="${body_mesh_scale}"/>
-        </geometry>
-      </xacro:if>
-      <xacro:if value="${body_mesh == ''}">
-        <geometry>
-          <box size="${body_size}"/>
-        </geometry>
-      </xacro:if>
-      <!--
-      The stl is required to have its frame located at its geometric center.
-      By using rpy="0 0 0" and xyz="0 0 0.5*body_size_z", the link
-      `${robot_prefix}${base_name}_link` is located at the center of the bottom
-      face of the mesh.
-       -->
-      <origin rpy="0 0 0" xyz="0 0 ${0.5 * body_size_z}"/>
-    </collision>
-
-    <xacro:if value="${body_use_inertial}">
-      <xacro:solid_box_inertia mass="${body_mass}"
-                               size="${body_size_x} ${body_size_y} ${body_size_z}"
-                               origin="0.0 0.0 ${0.5 * body_size_z} 0.0 0.0 0.0"/>
-    </xacro:if>
-
-    <xacro:unless value="${body_use_inertial}">
-        <xacro:null_inertia/>
-    </xacro:unless>
+    <xacro:null_inertia/>
   </link>
 
   <joint name="${robot_prefix}${base_name}_joint" type="fixed">
     <parent link="${robot_prefix}${base_name}_footprint_link"/>
     <child link="${robot_prefix}${base_name}_link"/>
     <!--
-    The link '${base_name}_link' is located at the center of the bottom face of the body, so it is
-    at a height of `ground_clearance + belly_size_z` meters above the link
-    '${base_name}_footprint_link'.
-    `belly_size_z` is 0 if the belly is not used, so the formula works in both cases.
+    The link '${base_name}_link' is located at the center of the bottom face of the lower body, so it is
+    at a height of `ground_clearance` meters above the link '${base_name}_footprint_link'.
     -->
-    <origin rpy="0 0 0" xyz="0 0 ${ground_clearance + belly_size_z}"/>
+    <origin rpy="0 0 0" xyz="0 0 ${ground_clearance}"/>
   </joint>
 
-  <xacro:if value="${use_bottom_belly}">
+  <link name="${robot_prefix}${base_name}_top_link">
+    <visual>
+      <geometry>
+        <box size="${top_body_size_x} ${top_body_size_y} ${top_body_size_z}"/>
+      </geometry>
+      <!--
+      The body is modeled as a box centered at its geometric center.
+      By placing the box origin at z = 0.5 * top_body_size_z, the link
+      `${robot_prefix}${base_name}_link` remains at the center of the bottom face of the body.
+      -->
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="${robot_prefix}${base_name}_color">
+        <color rgba="${body_color}"/>
+      </material>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="${top_body_size_x} ${top_body_size_y} ${top_body_size_z}"/>
+      </geometry>
+      <!--
+      The collision body uses the same box and the same origin as the visual body.
+      This keeps the body link frame at the center of the bottom face of the body.
+      -->
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+
+    <xacro:if value="${body_use_inertial}">
+      <xacro:solid_box_inertia mass="${top_body_mass}"
+                               size="${top_body_size_x} ${top_body_size_y} ${top_body_size_z}"
+                               origin="0 0 0 0 0 0"/>
+    </xacro:if>
+
+    <xacro:unless value="${body_use_inertial}">
+      <xacro:null_inertia/>
+    </xacro:unless>
+  </link>
+
+  <joint name="${robot_prefix}${base_name}_top_joint" type="fixed">
+    <parent link="${robot_prefix}${base_name}_link"/>
+    <child link="${robot_prefix}${base_name}_top_link"/>
     <!--
-    The belly is modeled as a box of size (belly_size_x, belly_size_y, belly_size_z) at the center
-    of the bottom face.
-    The belly inertia is enabled only when `body_use_inertial` is enabled.
+    The link '${base_name}_link' is located at the center of the bottom face of the body, so it is
+    at a height of `ground_clearance + bottom_body_size_z` meters above the link
+    '${base_name}_footprint_link'.
+    The belly is always present in this model, so `bottom_body_size_z` is always part of that offset.
     -->
-    <link name="${robot_prefix}${base_name}_belly_link">
-      <visual>
-        <geometry>
-          <box size="${belly_size_x} ${belly_size_y} ${belly_size_z}"/>
-        </geometry>
-        <origin rpy="0 0 0" xyz="0 0 ${0.5 * belly_size_z}"/>
-        <material name="${robot_prefix}${base_name}_color">
-          <color rgba="${body_color}"/>
-        </material>
-      </visual>
+    <origin rpy="0 0 0" xyz="0 0 ${bottom_body_size_z + (0.5 * top_body_size_z)}"/>
+  </joint>
 
-      <collision>
-        <geometry>
-          <box size="${belly_size_x} ${belly_size_y} ${belly_size_z}"/>
-        </geometry>
-        <origin rpy="0 0 0" xyz="0 0 ${0.5 * belly_size_z}"/>
-      </collision>
+  <!--
+  The belly is a box centered under the chassis.
+  It is always part of the model.
+  The belly inertia is enabled only when `body_use_inertial` is enabled.
+  -->
+  <link name="${robot_prefix}${base_name}_bottom_link">
+    <visual>
+      <geometry>
+        <box size="${bottom_body_size_x} ${bottom_body_size_y} ${bottom_body_size_z}"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="${robot_prefix}${base_name}_color">
+        <color rgba="${body_color}"/>
+      </material>
+    </visual>
 
-      <xacro:if value="${body_use_inertial}">
-        <xacro:solid_box_inertia mass="${belly_mass}"
-                                size="${belly_size_x} ${belly_size_y} ${belly_size_z}"
-                                origin="0.0 0.0 ${0.5 * belly_size_z} 0.0 0.0 0.0"/>
-      </xacro:if>
+    <collision>
+      <geometry>
+        <box size="${bottom_body_size_x} ${bottom_body_size_y} ${bottom_body_size_z}"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
 
-      <xacro:unless value="${body_use_inertial}">
-          <xacro:null_inertia/>
-      </xacro:unless>
-    </link>
+    <xacro:if value="${body_use_inertial}">
+      <xacro:solid_box_inertia mass="${bottom_body_mass}"
+        size="${bottom_body_size_x} ${bottom_body_size_y} ${bottom_body_size_z}"
+        origin="0 0 0 0 0 0"/>
+    </xacro:if>
 
-    <joint name="${robot_prefix}${base_name}_belly_joint" type="fixed">
-      <parent link="${robot_prefix}${base_name}_link"/>
-      <child link="${robot_prefix}${base_name}_belly_link"/>
-      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 ${-belly_size_z}"/>
-    </joint>
-  </xacro:if>
+    <xacro:unless value="${body_use_inertial}">
+      <xacro:null_inertia/>
+    </xacro:unless>
+  </link>
+
+  <joint name="${robot_prefix}${base_name}_bottom_joint" type="fixed">
+    <parent link="${robot_prefix}${base_name}_link"/>
+    <child link="${robot_prefix}${base_name}_bottom_link"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 ${0.5 * bottom_body_size_z}"/>
+  </joint>
 
   <!--
   Definition of the steerable wheels.
   -->
 
   <!-- z-coordinate of each steerable wheel w.r.t it parent frame -->
-  <xacro:property name="z_s_wheel" value="${-belly_size_z - ground_clearance + s_wheel_radius}"/>
+  <xacro:property name="z_s_wheel" value="${-ground_clearance + s_wheel_radius}"/>
   <xacro:property name="d"         value="${float(dist_to_wheels)}"/>
   <xacro:property name="alpha"     value="${radians(float(alpha_deg))}"/>
   <xacro:property name="x_0"       value="${d * cos(alpha)}"/>
@@ -467,96 +365,100 @@
   -->
 
   <!-- Front left wheel: (x_0, y_0) -->
-  <xacro:steerable_wheel name="${steerable_wheel_0_name}"
-                         prefix="${robot_prefix}"
-                         parent_frame="${robot_prefix}${base_name}_link"
-                         use_visual="True"
-                         use_inertial="${s_wheel_use_inertial}"
-                         v_mesh="${s_wheel_mesh}"
-                         v_mesh_scale="${s_wheel_mesh_scale}"
-                         color="${s_wheel_color}"
-                         radius="${s_wheel_radius}"
-                         length="${s_wheel_thickness}"
-                         mass="${s_wheel_mass}"
-                         steering_joint_type="${s_wheel_steering_joint_type}"
-                         steering_joint_limits="${s_wheel_steering_joint_limits}"
-                         rotation_joint_type="${s_wheel_rotation_joint_type}"
-                         rotation_joint_limits="${s_wheel_rotation_joint_limits}"
-                         max_contacts="${s_wheel_max_contacts}"
-                         mu="${s_wheel_mu}"
-                         mu2="${s_wheel_mu2}"
-                         slip1="${s_wheel_slip1}"
-                         slip2="${s_wheel_slip2}"
-                         joint_parent_fr_wheel_fr="${x_0} ${y_0} ${z_s_wheel} 0.0 0.0 0.0"/>
+  <xacro:steerable_wheel
+    name="${steerable_wheel_0_name}"
+    prefix="${robot_prefix}"
+    parent_frame="${robot_prefix}${base_name}_link"
+    use_visual="True"
+    use_inertial="${s_wheel_use_inertial}"
+    v_mesh="${s_wheel_mesh}"
+    v_mesh_scale="${s_wheel_mesh_scale}"
+    color="${s_wheel_color}"
+    radius="${s_wheel_radius}"
+    length="${s_wheel_thickness}"
+    mass="${s_wheel_mass}"
+    steering_joint_type="${s_wheel_steering_joint_type}"
+    steering_joint_limits="${s_wheel_steering_joint_limits}"
+    rotation_joint_type="${s_wheel_rotation_joint_type}"
+    rotation_joint_limits="${s_wheel_rotation_joint_limits}"
+    max_contacts="${s_wheel_max_contacts}"
+    mu="${s_wheel_mu}"
+    mu2="${s_wheel_mu2}"
+    slip1="${s_wheel_slip1}"
+    slip2="${s_wheel_slip2}"
+    joint_parent_fr_wheel_fr="${x_0} ${y_0} ${z_s_wheel} 0.0 0.0 0.0"/>
 
   <!-- Front right wheel: (x_0, -y_0) -->
-  <xacro:steerable_wheel name="${steerable_wheel_1_name}"
-                         prefix="${robot_prefix}"
-                         parent_frame="${robot_prefix}${base_name}_link"
-                         use_visual="True"
-                         use_inertial="${s_wheel_use_inertial}"
-                         v_mesh="${s_wheel_mesh}"
-                         v_mesh_scale="${s_wheel_mesh_scale}"
-                         color="${s_wheel_color}"
-                         radius="${s_wheel_radius}"
-                         length="${s_wheel_thickness}"
-                         mass="${s_wheel_mass}"
-                         steering_joint_type="${s_wheel_steering_joint_type}"
-                         steering_joint_limits="${s_wheel_steering_joint_limits}"
-                         rotation_joint_type="${s_wheel_rotation_joint_type}"
-                         rotation_joint_limits="${s_wheel_rotation_joint_limits}"
-                         max_contacts="${s_wheel_max_contacts}"
-                         mu="${s_wheel_mu}"
-                         mu2="${s_wheel_mu2}"
-                         slip1="${s_wheel_slip1}"
-                         slip2="${s_wheel_slip2}"
-                         joint_parent_fr_wheel_fr="${x_0} ${-y_0} ${z_s_wheel} 0.0 0.0 0.0"/>
+  <xacro:steerable_wheel
+    name="${steerable_wheel_1_name}"
+    prefix="${robot_prefix}"
+    parent_frame="${robot_prefix}${base_name}_link"
+    use_visual="True"
+    use_inertial="${s_wheel_use_inertial}"
+    v_mesh="${s_wheel_mesh}"
+    v_mesh_scale="${s_wheel_mesh_scale}"
+    color="${s_wheel_color}"
+    radius="${s_wheel_radius}"
+    length="${s_wheel_thickness}"
+    mass="${s_wheel_mass}"
+    steering_joint_type="${s_wheel_steering_joint_type}"
+    steering_joint_limits="${s_wheel_steering_joint_limits}"
+    rotation_joint_type="${s_wheel_rotation_joint_type}"
+    rotation_joint_limits="${s_wheel_rotation_joint_limits}"
+    max_contacts="${s_wheel_max_contacts}"
+    mu="${s_wheel_mu}"
+    mu2="${s_wheel_mu2}"
+    slip1="${s_wheel_slip1}"
+    slip2="${s_wheel_slip2}"
+    joint_parent_fr_wheel_fr="${x_0} ${-y_0} ${z_s_wheel} 0.0 0.0 0.0"/>
 
   <!-- Back left wheel: (-x_0, y_0) -->
-  <xacro:steerable_wheel name="${steerable_wheel_2_name}"
-                         prefix="${robot_prefix}"
-                         parent_frame="${robot_prefix}${base_name}_link"
-                         use_visual="True"
-                         use_inertial="${s_wheel_use_inertial}"
-                         v_mesh="${s_wheel_mesh}"
-                         v_mesh_scale="${s_wheel_mesh_scale}"
-                         color="${s_wheel_color}"
-                         radius="${s_wheel_radius}"
-                         length="${s_wheel_thickness}"
-                         mass="${s_wheel_mass}"
-                         steering_joint_type="${s_wheel_steering_joint_type}"
-                         steering_joint_limits="${s_wheel_steering_joint_limits}"
-                         rotation_joint_type="${s_wheel_rotation_joint_type}"
-                         rotation_joint_limits="${s_wheel_rotation_joint_limits}"
-                         max_contacts="${s_wheel_max_contacts}"
-                         mu="${s_wheel_mu}"
-                         mu2="${s_wheel_mu2}"
-                         slip1="${s_wheel_slip1}"
-                         slip2="${s_wheel_slip2}"
-                         joint_parent_fr_wheel_fr="${-x_0} ${y_0} ${z_s_wheel} 0.0 0.0 0.0"/>
+  <xacro:steerable_wheel
+    name="${steerable_wheel_2_name}"
+    prefix="${robot_prefix}"
+    parent_frame="${robot_prefix}${base_name}_link"
+    use_visual="True"
+    use_inertial="${s_wheel_use_inertial}"
+    v_mesh="${s_wheel_mesh}"
+    v_mesh_scale="${s_wheel_mesh_scale}"
+    color="${s_wheel_color}"
+    radius="${s_wheel_radius}"
+    length="${s_wheel_thickness}"
+    mass="${s_wheel_mass}"
+    steering_joint_type="${s_wheel_steering_joint_type}"
+    steering_joint_limits="${s_wheel_steering_joint_limits}"
+    rotation_joint_type="${s_wheel_rotation_joint_type}"
+    rotation_joint_limits="${s_wheel_rotation_joint_limits}"
+    max_contacts="${s_wheel_max_contacts}"
+    mu="${s_wheel_mu}"
+    mu2="${s_wheel_mu2}"
+    slip1="${s_wheel_slip1}"
+    slip2="${s_wheel_slip2}"
+    joint_parent_fr_wheel_fr="${-x_0} ${y_0} ${z_s_wheel} 0.0 0.0 0.0"/>
 
   <!-- Back right wheel: (-x_0, -y_0) -->
-  <xacro:steerable_wheel name="${steerable_wheel_3_name}"
-                         prefix="${robot_prefix}"
-                         parent_frame="${robot_prefix}${base_name}_link"
-                         use_visual="True"
-                         use_inertial="${s_wheel_use_inertial}"
-                         v_mesh="${s_wheel_mesh}"
-                         v_mesh_scale="${s_wheel_mesh_scale}"
-                         color="${s_wheel_color}"
-                         radius="${s_wheel_radius}"
-                         length="${s_wheel_thickness}"
-                         mass="${s_wheel_mass}"
-                         steering_joint_type="${s_wheel_steering_joint_type}"
-                         steering_joint_limits="${s_wheel_steering_joint_limits}"
-                         rotation_joint_type="${s_wheel_rotation_joint_type}"
-                         rotation_joint_limits="${s_wheel_rotation_joint_limits}"
-                         max_contacts="${s_wheel_max_contacts}"
-                         mu="${s_wheel_mu}"
-                         mu2="${s_wheel_mu2}"
-                         slip1="${s_wheel_slip1}"
-                         slip2="${s_wheel_slip2}"
-                         joint_parent_fr_wheel_fr="${-x_0} ${-y_0} ${z_s_wheel} 0.0 0.0 0.0"/>
+  <xacro:steerable_wheel
+    name="${steerable_wheel_3_name}"
+    prefix="${robot_prefix}"
+    parent_frame="${robot_prefix}${base_name}_link"
+    use_visual="True"
+    use_inertial="${s_wheel_use_inertial}"
+    v_mesh="${s_wheel_mesh}"
+    v_mesh_scale="${s_wheel_mesh_scale}"
+    color="${s_wheel_color}"
+    radius="${s_wheel_radius}"
+    length="${s_wheel_thickness}"
+    mass="${s_wheel_mass}"
+    steering_joint_type="${s_wheel_steering_joint_type}"
+    steering_joint_limits="${s_wheel_steering_joint_limits}"
+    rotation_joint_type="${s_wheel_rotation_joint_type}"
+    rotation_joint_limits="${s_wheel_rotation_joint_limits}"
+    max_contacts="${s_wheel_max_contacts}"
+    mu="${s_wheel_mu}"
+    mu2="${s_wheel_mu2}"
+    slip1="${s_wheel_slip1}"
+    slip2="${s_wheel_slip2}"
+    joint_parent_fr_wheel_fr="${-x_0} ${-y_0} ${z_s_wheel} 0.0 0.0 0.0"/>
 
   <!-- ===================================================================== -->
   <!-- PLUGINS FOR THE BASE -->
@@ -584,7 +486,7 @@
       friction parameters or worry about wheel slip.
       -->
       <xacro:property name="base_velocity_controller_sim_cfg"
-                      value="${sim_cfg.get('base_velocity_controller', dict())}"/>
+        value="${sim_cfg.get('base_velocity_controller', dict())}"/>
 
       <xacro:if value="${base_velocity_controller_sim_cfg.get('enabled', False)}">
         <!--
@@ -596,14 +498,14 @@
         <!-- If the topic is empty, then the plugin is not loaded. -->
         <xacro:if value="${bvc_topic != ''}">
           <xacro:resolve_topic prop_id="bvc_resolved_topic"
-                               topic="${bvc_topic}"
-                               namespace="${robot_namespace}"/>
+            topic="${bvc_topic}"
+            namespace="${robot_namespace}"/>
 
           <xacro:property name="bvc_initial_linear_vel"
-                          value="${base_velocity_controller_sim_cfg.get('initial_linear_vel', dict(x=0, y=0, z=0))}"/>
+            value="${base_velocity_controller_sim_cfg.get('initial_linear_vel', dict(x=0, y=0, z=0))}"/>
 
           <xacro:property name="bvc_initial_angular_vel"
-                          value="${base_velocity_controller_sim_cfg.get('initial_angular_vel', dict(x=0, y=0, z=0))}"/>
+            value="${base_velocity_controller_sim_cfg.get('initial_angular_vel', dict(x=0, y=0, z=0))}"/>
 
           <xacro:plugin_velocity_control
             topic="${bvc_resolved_topic}"
@@ -620,7 +522,7 @@
       More details about this plugin in package://robotics_description/urdf/gz_system_plugins/plugin_odometry_publisher_macro.xacro
       -->
       <xacro:property name="base_pose_ground_truth_publisher_sim_cfg"
-                      value="${sim_cfg.get('base_pose_ground_truth_publisher', dict())}"/>
+        value="${sim_cfg.get('base_pose_ground_truth_publisher', dict())}"/>
 
       <xacro:if value="${base_pose_ground_truth_publisher_sim_cfg.get('enabled', False)}">
         <!--
@@ -628,42 +530,42 @@
         (t)ruth (p)ublisher Gazebo plugin, to avoid name conflicts with other Gazebo plugins.
         -->
         <xacro:property name="bpgtp_nav_topic_no_cov"
-                        value="${base_pose_ground_truth_publisher_sim_cfg.get('nav_topic_no_cov', '')}"/>
+          value="${base_pose_ground_truth_publisher_sim_cfg.get('nav_topic_no_cov', '')}"/>
 
         <xacro:property name="bpgtp_nav_topic_cov"
-                        value="${base_pose_ground_truth_publisher_sim_cfg.get('nav_topic_cov', '')}"/>
+          value="${base_pose_ground_truth_publisher_sim_cfg.get('nav_topic_cov', '')}"/>
 
         <xacro:property name="bpgtp_tf_topic"
-                        value="${base_pose_ground_truth_publisher_sim_cfg.get('tf_topic', '')}"/>
+          value="${base_pose_ground_truth_publisher_sim_cfg.get('tf_topic', '')}"/>
 
         <!-- If one of the topics is empty, then the plugin is not loaded. -->
         <xacro:if value="${bpgtp_nav_topic_cov != '' and bpgtp_nav_topic_no_cov != '' and bpgtp_tf_topic != ''}">
           <xacro:resolve_topic prop_id="bpgtp_resolved_nav_topic_cov"
-                               topic="${bpgtp_nav_topic_cov}"
-                               namespace="${robot_namespace}"/>
+            topic="${bpgtp_nav_topic_cov}"
+            namespace="${robot_namespace}"/>
 
           <xacro:resolve_topic prop_id="bpgtp_resolved_nav_topic_no_cov"
-                               topic="${bpgtp_nav_topic_no_cov}"
-                               namespace="${robot_namespace}"/>
+            topic="${bpgtp_nav_topic_no_cov}"
+            namespace="${robot_namespace}"/>
 
           <xacro:resolve_topic prop_id="bpgtp_resolved_tf_topic"
-                               topic="${bpgtp_tf_topic}"
-                               namespace="${robot_namespace}"/>
+            topic="${bpgtp_tf_topic}"
+            namespace="${robot_namespace}"/>
 
           <xacro:property name="bpgtp_fixed_frame"
-                          value="${base_pose_ground_truth_publisher_sim_cfg.get('fixed_frame', 'sim_world')}"/>
+            value="${base_pose_ground_truth_publisher_sim_cfg.get('fixed_frame', 'sim_world')}"/>
 
           <xacro:property name="bpgtp_offset"
-                          value="${base_pose_ground_truth_publisher_sim_cfg.get('offset', dict(x=0, y=0, z=0, R=0, P=0, Y=0))}"/>
+            value="${base_pose_ground_truth_publisher_sim_cfg.get('offset', dict(x=0, y=0, z=0, R=0, P=0, Y=0))}"/>
 
           <xacro:property name="bpgtp_global_offset"
-                          value="${base_pose_ground_truth_publisher_sim_cfg.get('global_offset', dict(x=0, y=0, z=0, R=0, P=0, Y=0))}"/>
+            value="${base_pose_ground_truth_publisher_sim_cfg.get('global_offset', dict(x=0, y=0, z=0, R=0, P=0, Y=0))}"/>
 
           <xacro:property name="bpgtp_gaussian_noise"
-                          value="${base_pose_ground_truth_publisher_sim_cfg.get('gaussian_noise', 0)}"/>
+            value="${base_pose_ground_truth_publisher_sim_cfg.get('gaussian_noise', 0)}"/>
 
           <xacro:property name="bpgtp_publication_frequency"
-                          value="${base_pose_ground_truth_publisher_sim_cfg.get('publication_frequency', 50)}"/>
+            value="${base_pose_ground_truth_publisher_sim_cfg.get('publication_frequency', 50)}"/>
 
           <xacro:plugin_odometry_publisher
             odom_frame="${bpgtp_fixed_frame}"
@@ -699,11 +601,11 @@
        -->
 
       <xacro:property name="sw0_sj_controller_sim_cfg"
-                      value="${sim_cfg.get('base_steerable_wheel_0_steering_joint_controller', dict())}"/>
+        value="${sim_cfg.get('base_steerable_wheel_0_steering_joint_controller', dict())}"/>
 
       <xacro:if value="${sw0_sj_controller_sim_cfg.get('enabled', False)}">
         <xacro:property name="sw0_sj_topic"
-                        value="${sw0_sj_controller_sim_cfg.get('topic', '')}"/>
+          value="${sw0_sj_controller_sim_cfg.get('topic', '')}"/>
 
         <!-- No topic, no Gazebo plugin -->
         <xacro:if value="${sw0_sj_topic != ''}">
@@ -722,11 +624,11 @@
        -->
 
       <xacro:property name="sw1_sj_controller_sim_cfg"
-                      value="${sim_cfg.get('base_steerable_wheel_1_steering_joint_controller', dict())}"/>
+        value="${sim_cfg.get('base_steerable_wheel_1_steering_joint_controller', dict())}"/>
 
       <xacro:if value="${sw1_sj_controller_sim_cfg.get('enabled', False)}">
         <xacro:property name="sw1_sj_topic"
-                        value="${sw1_sj_controller_sim_cfg.get('topic', '')}"/>
+          value="${sw1_sj_controller_sim_cfg.get('topic', '')}"/>
 
         <!-- No topic, no Gazebo plugin -->
         <xacro:if value="${sw1_sj_topic != ''}">
@@ -745,11 +647,11 @@
        -->
 
       <xacro:property name="sw2_sj_controller_sim_cfg"
-                      value="${sim_cfg.get('base_steerable_wheel_2_steering_joint_controller', dict())}"/>
+        value="${sim_cfg.get('base_steerable_wheel_2_steering_joint_controller', dict())}"/>
 
       <xacro:if value="${sw2_sj_controller_sim_cfg.get('enabled', False)}">
         <xacro:property name="sw2_sj_topic"
-                        value="${sw2_sj_controller_sim_cfg.get('topic', '')}"/>
+          value="${sw2_sj_controller_sim_cfg.get('topic', '')}"/>
 
         <!-- No topic, no Gazebo plugin -->
         <xacro:if value="${sw2_sj_topic != ''}">
@@ -768,11 +670,11 @@
        -->
 
       <xacro:property name="sw3_sj_controller_sim_cfg"
-                      value="${sim_cfg.get('base_steerable_wheel_3_steering_joint_controller', dict())}"/>
+        value="${sim_cfg.get('base_steerable_wheel_3_steering_joint_controller', dict())}"/>
 
       <xacro:if value="${sw3_sj_controller_sim_cfg.get('enabled', False)}">
         <xacro:property name="sw3_sj_topic"
-                        value="${sw3_sj_controller_sim_cfg.get('topic', '')}"/>
+          value="${sw3_sj_controller_sim_cfg.get('topic', '')}"/>
 
         <!-- No topic, no Gazebo plugin -->
         <xacro:if value="${sw3_sj_topic != ''}">
@@ -801,11 +703,11 @@
       `JointController` Gazebo plugin for the rotation joint of the steerable wheel 0.
        -->
       <xacro:property name="sw0_rj_controller_sim_cfg"
-                      value="${sim_cfg.get('base_steerable_wheel_0_rotation_joint_controller', dict())}"/>
+        value="${sim_cfg.get('base_steerable_wheel_0_rotation_joint_controller', dict())}"/>
 
       <xacro:if value="${sw0_rj_controller_sim_cfg.get('enabled', False)}">
         <xacro:property name="sw0_rj_topic"
-                        value="${sw0_rj_controller_sim_cfg.get('topic', '')}"/>
+          value="${sw0_rj_controller_sim_cfg.get('topic', '')}"/>
 
         <!-- No topic, no Gazebo plugin -->
         <xacro:if value="${sw0_rj_topic != ''}">
@@ -823,11 +725,11 @@
       `JointController` Gazebo plugin for the rotation joint of the steerable wheel 1.
        -->
       <xacro:property name="sw1_rj_controller_sim_cfg"
-                      value="${sim_cfg.get('base_steerable_wheel_1_rotation_joint_controller', dict())}"/>
+        value="${sim_cfg.get('base_steerable_wheel_1_rotation_joint_controller', dict())}"/>
 
       <xacro:if value="${sw1_rj_controller_sim_cfg.get('enabled', False)}">
         <xacro:property name="sw1_rj_topic"
-                        value="${sw1_rj_controller_sim_cfg.get('topic', '')}"/>
+          value="${sw1_rj_controller_sim_cfg.get('topic', '')}"/>
 
         <!-- No topic, no Gazebo plugin -->
         <xacro:if value="${sw1_rj_topic != ''}">
@@ -845,11 +747,11 @@
       `JointController` Gazebo plugin for the rotation joint of the steerable wheel 2.
        -->
       <xacro:property name="sw2_rj_controller_sim_cfg"
-                      value="${sim_cfg.get('base_steerable_wheel_2_rotation_joint_controller', dict())}"/>
+        value="${sim_cfg.get('base_steerable_wheel_2_rotation_joint_controller', dict())}"/>
 
       <xacro:if value="${sw2_rj_controller_sim_cfg.get('enabled', False)}">
         <xacro:property name="sw2_rj_topic"
-                        value="${sw2_rj_controller_sim_cfg.get('topic', '')}"/>
+          value="${sw2_rj_controller_sim_cfg.get('topic', '')}"/>
 
         <!-- No topic, no Gazebo plugin -->
         <xacro:if value="${sw2_rj_topic != ''}">
@@ -867,11 +769,11 @@
       `JointController` Gazebo plugin for the rotation joint of the steerable wheel 3.
        -->
       <xacro:property name="sw3_rj_controller_sim_cfg"
-                      value="${sim_cfg.get('base_steerable_wheel_3_rotation_joint_controller', dict())}"/>
+        value="${sim_cfg.get('base_steerable_wheel_3_rotation_joint_controller', dict())}"/>
 
       <xacro:if value="${sw3_rj_controller_sim_cfg.get('enabled', False)}">
         <xacro:property name="sw3_rj_topic"
-                        value="${sw3_rj_controller_sim_cfg.get('topic', '')}"/>
+          value="${sw3_rj_controller_sim_cfg.get('topic', '')}"/>
 
         <!-- No topic, no Gazebo plugin -->
         <xacro:if value="${sw3_rj_topic != ''}">

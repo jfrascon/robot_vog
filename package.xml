@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>robot_agr_4sw</name>
+  <name>robot_vog</name>
   <version>1.0.0</version>
-  <description>URDF descriptions for the robot_agr_4sw robot family</description>
+  <description>URDF descriptions for the robot_vog robot family</description>
   <maintainer email="jfracon@gmail.com">Juan Francisco Rascon Crespo</maintainer>
   <license>BSD-3-Clause</license>
 

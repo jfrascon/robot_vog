@@ -1,8 +1,6 @@
-# This file shows the full simulation configuration for the model 'm2' of the
-# `robot_agr_4sw` robot.
-# If you need to customize the simulation configuration, create a new file and
-# pass it as a value for the parameter
-# 'sim_file' in the launch file 'm1.launch.py' or 'm2.launch.py'.
+# This file shows the full simulation configuration for the `forklift` model of the `vog` robot.
+# If you need to customize the simulation configuration, create a new file and pass it as a value
+# for the parameter 'sim_file' in the used launch file.
 
 # Plugin to control the mobile base in velocity.
 base_velocity_controller:
@@ -40,6 +38,12 @@ base_steerable_wheel_2_steering_joint_controller:
   initial_angle: 0.0
   topic: joint_commands/base # received
 
+# Plugin to control the steering joint of the steerable wheel 3
+base_steerable_wheel_3_steering_joint_controller:
+  enabled: True
+  initial_angle: 0.0
+  topic: joint_commands/base # received
+
 # Plugin to control the rotation of the steerable wheels.
 # It has visual purposes only, since the motion of the platform is controlled by
 # the base_velocity_controller.
@@ -54,6 +58,10 @@ base_steerable_wheel_1_rotation_joint_controller:
   topic: joint_commands/base # received
 
 base_steerable_wheel_2_rotation_joint_controller:
+  enabled: True
+  topic: joint_commands/base # received
+
+base_steerable_wheel_3_rotation_joint_controller:
   enabled: True
   topic: joint_commands/base # received
 
@@ -594,77 +602,6 @@ right_tine_camera_infra2:
   trigger_topic: right_tine_camera/infra2/trigger
 
 ################################################################################
-# Top sensor is a Robosense Airy with integrated IMU.
-################################################################################
-# Configuration for the `gpu_lidar` Gazebo plugin.
-back_top_lidar:
-  enabled: True
-  always_on: True
-  visualize: False
-  update_rate: 10.0
-  hor_fov_deg: { "min_angle": -180, "max_angle": 180 }
-  hor_res_deg: 0.4
-  ver_fov_deg: { "min_angle": 0, "max_angle": 90 }
-  ver_res_deg: 0.947
-  dist_span: { "min_dist": 0.1, "max_dist": 60 } # m
-  gaussian_noise: { "mean": 0, "stddev": 0.01 }
-  # The Gazebo plugin will publish two topics:
-  # Topic <base_topic> with messages of type gz.msgs.LaserScan
-  # Topic <base_topic>/points with messages of type gz.msgs.PointCloudPacked
-  base_topic: back_top_lidar/scan
-
-# Configuration for the integrated `imu` Gazebo plugin.
-back_top_lidar_imu:
-  enabled: True
-  use_gravity: True
-  always_on: True
-  update_rate: 100.0
-  ang_vel_gaussian_noise:
-    mean_x: 0.0
-    stddev_x: 0.0002
-    mean_y: 0.0
-    stddev_y: 0.0002
-    mean_z: 0.0
-    stddev_z: 0.0002
-  ang_vel_gaussian_noise_bias:
-    mean_x: 0.0000075
-    stddev_x: 0.0000008
-    mean_y: 0.0000075
-    stddev_y: 0.0000008
-    mean_z: 0.0000075
-    stddev_z: 0.0000008
-  ang_vel_gaussian_noise_dynamic_bias:
-    stddev_x: 0.0
-    corr_time_x: 0.0
-    stddev_y: 0.0
-    corr_time_y: 0.0
-    stddev_z: 0.0
-    corr_time_z: 0.0
-  lin_acc_gaussian_noise:
-    mean_x: 0.0
-    stddev_x: 0.017
-    mean_y: 0.0
-    stddev_y: 0.017
-    mean_z: 0.0
-    stddev_z: 0.017
-  lin_acc_gaussian_noise_bias:
-    mean_x: 0.1
-    stddev_x: 0.001
-    mean_y: 0.1
-    stddev_y: 0.001
-    mean_z: 0.1
-    stddev_z: 0.001
-  lin_acc_gaussian_noise_dynamic_bias:
-    stddev_x: 0.0
-    corr_time_x: 0.0
-    stddev_y: 0.0
-    corr_time_y: 0.0
-    stddev_z: 0.0
-    corr_time_z: 0.0
-  use_orientation: True
-  topic: back_top_lidar/imu/data # published
-
-################################################################################
 # Front top sensor is also a Robosense Airy with integrated IMU.
 ################################################################################
 # Configuration for the `gpu_lidar` Gazebo plugin.
@@ -734,3 +671,86 @@ front_top_lidar_imu:
     corr_time_z: 0.0
   use_orientation: True
   topic: front_top_lidar/imu/data # published
+
+################################################################################
+# Top sensor is a Robosense Airy with integrated IMU.
+################################################################################
+# Configuration for the `gpu_lidar` Gazebo plugin.
+back_top_lidar:
+  enabled: True
+  always_on: True
+  visualize: False
+  update_rate: 10.0
+  hor_fov_deg: { "min_angle": -180, "max_angle": 180 }
+  hor_res_deg: 0.4
+  ver_fov_deg: { "min_angle": 0, "max_angle": 90 }
+  ver_res_deg: 0.947
+  dist_span: { "min_dist": 0.1, "max_dist": 60 } # m
+  gaussian_noise: { "mean": 0, "stddev": 0.01 }
+  # The Gazebo plugin will publish two topics:
+  # Topic <base_topic> with messages of type gz.msgs.LaserScan
+  # Topic <base_topic>/points with messages of type gz.msgs.PointCloudPacked
+  base_topic: back_top_lidar/scan
+
+front_bottom_lidar:
+  enabled: True
+  use_gravity: True
+  always_on: True
+  visualize: False
+  update_rate: 25.0
+  hor_fov_deg: { "min_angle": -135, "max_angle": 135 }
+  hor_res_deg: 0.5
+  dist_span: { "min_dist": 0.1, "max_dist": 30.0 } # m
+  gaussian_noise: { "mean": 0, "stddev": 0.01 }
+  topic: front_bottom/scan
+
+# Configuration for the integrated `imu` Gazebo plugin.
+back_top_lidar_imu:
+  enabled: True
+  use_gravity: True
+  always_on: True
+  update_rate: 100.0
+  ang_vel_gaussian_noise:
+    mean_x: 0.0
+    stddev_x: 0.0002
+    mean_y: 0.0
+    stddev_y: 0.0002
+    mean_z: 0.0
+    stddev_z: 0.0002
+  ang_vel_gaussian_noise_bias:
+    mean_x: 0.0000075
+    stddev_x: 0.0000008
+    mean_y: 0.0000075
+    stddev_y: 0.0000008
+    mean_z: 0.0000075
+    stddev_z: 0.0000008
+  ang_vel_gaussian_noise_dynamic_bias:
+    stddev_x: 0.0
+    corr_time_x: 0.0
+    stddev_y: 0.0
+    corr_time_y: 0.0
+    stddev_z: 0.0
+    corr_time_z: 0.0
+  lin_acc_gaussian_noise:
+    mean_x: 0.0
+    stddev_x: 0.017
+    mean_y: 0.0
+    stddev_y: 0.017
+    mean_z: 0.0
+    stddev_z: 0.017
+  lin_acc_gaussian_noise_bias:
+    mean_x: 0.1
+    stddev_x: 0.001
+    mean_y: 0.1
+    stddev_y: 0.001
+    mean_z: 0.1
+    stddev_z: 0.001
+  lin_acc_gaussian_noise_dynamic_bias:
+    stddev_x: 0.0
+    corr_time_x: 0.0
+    stddev_y: 0.0
+    corr_time_y: 0.0
+    stddev_z: 0.0
+    corr_time_z: 0.0
+  use_orientation: True
+  topic: back_top_lidar/imu/data # published

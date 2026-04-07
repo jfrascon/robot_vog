@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <!--
-  The model `m2` is an AGR robot with 4 steerable wheels that includes the fork_simple module.
+  This file publishes the `forklift` model of the `robot_vog` family.
+  The robot name inside the URDF stays `vog_forklift`.
+
+  The model is a VOG robot with 4 steerable wheels that includes the
+  fork_simple module.
   The fork_simple module contains:
   - A simlpe fork.
   - A realsense d435 camera (rgbd) mounted on the fork.
@@ -8,15 +12,16 @@
   - A realsense d435 camera (rgbd) inside the right tine.
   - A Robosense Airy lidar mounted on the back of the robot.
   - A Robosense Airy lidar mounted on the front of the robot.
+  - A front bottom lidar mounted on the robot body.
 -->
-<robot name="robot_agr_4sw_m2" xmlns:xacro="http://www.ros.org/wiki/xacro" xmlns:gz="http://gazebosim.org/schema">
+<robot name="vog_forklift" xmlns:xacro="http://www.ros.org/wiki/xacro" xmlns:gz="http://gazebosim.org/schema">
 
   <!-- ===================================================================== -->
   <!-- INCLUDES -->
   <!-- ===================================================================== -->
 
-  <xacro:include filename="$(find robot_agr_4sw)/urdf/includes/common.xacro"/>
-  <xacro:include filename="$(find robot_agr_4sw)/urdf/includes/fork_simple_module.xacro"/>
+  <xacro:include filename="$(find robot_vog)/urdf/includes/common.xacro"/>
+  <xacro:include filename="$(find robot_vog)/urdf/includes/fork_simple_module.xacro"/>
 
   <!--
   The fork module creates the fork itself and the sensors mounted on it or above the body.
@@ -37,7 +42,7 @@
 
           <xacro:plugin_joint_state_publisher topic="${resolved_js_topic}">
             <joint_names>
-              <joint_name>${robot_prefix}${fork_name}_root_joint</joint_name>
+              <joint_name>${robot_prefix}${fork_name}_carriage_joint</joint_name>
               <joint_name>${robot_prefix}${steerable_wheel_0_name}_steering_joint</joint_name>
               <joint_name>${robot_prefix}${steerable_wheel_0_name}_rotation_joint</joint_name>
               <joint_name>${robot_prefix}${steerable_wheel_1_name}_steering_joint</joint_name>

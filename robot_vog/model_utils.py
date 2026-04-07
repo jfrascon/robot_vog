@@ -1,8 +1,13 @@
 """
 Helpers to work with the robot models provided by this package.
 
-This package exposes public robot models through Xacro files such as `m1` and
-`m2`.
+This package exposes public robot models through files named
+`urdf/models/model_<robot_model>.xacro`.
+
+The public robot model identifier used by the Python and launch code is the
+short model name without the `model_` prefix. For example:
+- file `urdf/models/model_base.xacro` publishes model `base`
+- file `urdf/models/model_forklift.xacro` publishes model `forklift`
 
 The file `includes/common.xacro` is not a public robot model. It is an internal
 Xacro file that is included by the public robot models, and it defines the
@@ -15,18 +20,18 @@ Each public robot model therefore uses:
 To declare launch arguments for those `xacro:arg` entries, this package uses
 an internal YAML-based system:
 - `xargs/common.yaml` stores the arguments shared by all public robot models
-- `xargs/<model>.yaml` stores the arguments specific to one public model when
-  that model defines additional arguments
+- `xargs/model_<robot_model>.yaml` stores the arguments specific to one public
+  robot model when that model defines additional arguments
 
 When the launch code asks for the arguments of one public robot model, this
 module resolves them as:
 - the arguments from `common.yaml` if that file exists
-- plus the arguments from `<model>.yaml` if that file exists
+- plus the arguments from `model_<robot_model>.yaml` if that file exists
 
 One public robot model therefore has internal xargs if at least one of these
 files exists:
 - `xargs/common.yaml`
-- `xargs/<model>.yaml`
+- `xargs/model_<robot_model>.yaml`
 """
 
 from pathlib import Path
@@ -35,11 +40,12 @@ from typing import Any, Dict, List
 import ros2_launch_helpers as rlh
 import yaml
 from ament_index_python.packages import get_package_share_directory
-from ament_index_python.packages import PackageNotFoundError
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 
 from launch import LaunchDescriptionEntity
+
+MODEL_FILE_PREFIX = 'model_'
 
 
 def declare_launch_arguments(robot_model: str) -> List[LaunchDescriptionEntity]:
@@ -59,23 +65,38 @@ def declare_launch_arguments(robot_model: str) -> List[LaunchDescriptionEntity]:
     return ldes
 
 
-def get_launch_configurations(robot_model: str) -> Dict[str, LaunchConfiguration]:
+def get_launch_configuration_entries(robot_model: str) -> Dict[str, LaunchConfiguration]:
     """
-    Return launch configurations for the xargs of one robot model.
+    Return launch argument entries for the xargs of one robot model.
     """
     return {xarg_name: LaunchConfiguration(xarg_name) for xarg_name in _get_xargs(robot_model).keys()}
+
+
+def get_model_launch_filename(robot_model: str) -> str:
+    """
+    Return the public launch filename for one short robot model name.
+    """
+    return f'{MODEL_FILE_PREFIX}{robot_model}.launch.py'
+
+
+def get_model_xacro_filename(robot_model: str) -> str:
+    """
+    Return the public Xacro filename for one short robot model name.
+    """
+    return f'{MODEL_FILE_PREFIX}{robot_model}.xacro'
 
 
 def get_models() -> List[str]:
     """
     Return the public robot models provided by the package xacro files.
     """
-    try:
-        urdf_dir = _get_urdf_dir()
-    except FileNotFoundError:
-        return []
+    urdf_dir = _get_urdf_dir()
 
-    return sorted(path.stem for path in urdf_dir.glob('*.xacro') if path.is_file())
+    return sorted(
+        path.stem.removeprefix(MODEL_FILE_PREFIX)
+        for path in urdf_dir.glob(f'{MODEL_FILE_PREFIX}*.xacro')
+        if path.is_file()
+    )
 
 
 def get_models_with_xargs() -> List[str]:
@@ -164,25 +185,64 @@ def _check_xarg_fields(xarg_name: str, xarg_cfg: Dict[str, Any], xargs_file: Pat
                 )
 
 
+def _get_model_xargs_filename(robot_model: str) -> str:
+    """
+    Return the internal xargs YAML filename for one short robot model name.
+    """
+    return f'{MODEL_FILE_PREFIX}{robot_model}.yaml'
+
+
 def _get_urdf_dir() -> Path:
     """
     Return the directory that stores robot xacro files.
     """
     # Public robot models are installed under urdf/models in the package share.
-    # Resolve that directory through ament in normal ROS execution.
-    #
-    # Some direct Python test runs import this module from the source tree
-    # without sourcing the workspace. In that case, the package share may not be
-    # discoverable through ament yet, so fall back to the source-tree layout.
-    try:
-        urdf_dir = Path(get_package_share_directory('robot_agr_4sw')).joinpath('urdf', 'models')
-    except PackageNotFoundError:
-        urdf_dir = Path(__file__).resolve().parent.parent.joinpath('urdf', 'models')
+    # This helper resolves that installed directory through ament and expects
+    # the package installation to provide the required model files.
+    urdf_dir = Path(get_package_share_directory('robot_vog')).joinpath('urdf', 'models')
 
     if not urdf_dir.is_dir():
         raise FileNotFoundError(f'URDF directory {urdf_dir!r} not found.')
 
     return urdf_dir
+
+
+def _get_xargs(robot_model: str) -> Dict[str, Dict[str, Any]]:
+    """
+    Return the internal xargs mapping for the requested robot model.
+    """
+    robot_model = (robot_model or '').strip()
+
+    if not model_has_xargs(robot_model):
+        return {}
+
+    common_xargs: Dict[str, Dict[str, Any]] = {}
+
+    # Resolve the xargs of one public model as:
+    # - the arguments from common.yaml when that file exists
+    # - plus the arguments from model_<robot_model>.yaml when that file exists
+    # If the model-specific YAML does not exist, the model uses only the common
+    # arguments.
+    # Both YAML files must define disjoint xargs. If the same xarg appears in
+    # both files, this is a model design mistake and the code fails before
+    # performing the merge.
+    if _xargs_file_exists('common'):
+        common_xargs = _load_xargs_yaml('common.yaml')
+
+    if not _xargs_file_exists(robot_model):
+        return common_xargs
+
+    model_xargs_file = _get_model_xargs_filename(robot_model)
+    model_xargs = _load_xargs_yaml(model_xargs_file)
+
+    duplicated_xargs = set(common_xargs).intersection(model_xargs)
+
+    if duplicated_xargs:
+        raise ValueError(
+            f"Xargs are duplicated between 'common.yaml' and '{model_xargs_file}': {sorted(duplicated_xargs)}"
+        )
+
+    return {**common_xargs, **model_xargs}
 
 
 def _get_xargs_dir() -> Path:
@@ -200,50 +260,13 @@ def _get_xargs_dir() -> Path:
     return xargs_dir
 
 
-def _get_xargs(robot_model: str) -> Dict[str, Dict[str, Any]]:
-    """
-    Return the internal xargs mapping for the requested robot model.
-    """
-    robot_model = (robot_model or '').strip()
-
-    if not model_has_xargs(robot_model):
-        return {}
-
-    common_xargs: Dict[str, Dict[str, Any]] = {}
-
-    # Resolve the xargs of one public model as:
-    # - the arguments from common.yaml when that file exists
-    # - plus the arguments from <model>.yaml when that file exists
-    # If the model-specific YAML does not exist, the model uses only the common
-    # arguments.
-    # Both YAML files must define disjoint xargs. If the same xarg appears in
-    # both files, this is a model design mistake and the code fails before
-    # performing the merge.
-    if _xargs_file_exists('common'):
-        common_xargs = _load_xargs_yaml('common.yaml')
-
-    if not _xargs_file_exists(robot_model):
-        return common_xargs
-
-    model_xargs = _load_xargs_yaml(f'{robot_model}.yaml')
-
-    duplicated_xargs = set(common_xargs).intersection(model_xargs)
-
-    if duplicated_xargs:
-        raise ValueError(
-            f"Xargs are duplicated between 'common.yaml' and '{robot_model}.yaml': {sorted(duplicated_xargs)}"
-        )
-
-    return {**common_xargs, **model_xargs}
-
-
 def _load_xargs_yaml(xargs_file: str) -> Dict[str, Dict[str, Any]]:
     """
     Load xargs directly from one internal YAML filename.
     """
     # The argument is the YAML filename itself, for example 'common.yaml' or
-    # 'm2.yaml'. The file content is a YAML mapping of xarg names to their
-    # configurations.
+    # 'model_forklift.yaml'. The file content is a YAML mapping of xarg names
+    # to their configurations.
     xargs_file_path = _get_xargs_dir().joinpath(xargs_file)
 
     if not xargs_file_path.is_file():
@@ -277,4 +300,9 @@ def _xargs_file_exists(name: str) -> bool:
     """
     Return whether one internal xargs YAML file exists.
     """
-    return _get_xargs_dir().joinpath(f'{name}.yaml').is_file()
+    if name == 'common':
+        filename = 'common.yaml'
+    else:
+        filename = _get_model_xargs_filename(name)
+
+    return _get_xargs_dir().joinpath(filename).is_file()
