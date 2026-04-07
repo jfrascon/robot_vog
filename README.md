@@ -1,4 +1,4 @@
-# robot_vog
+# [`robot_vog`](https://github.com/jfrascon/robot_vog/)
 
 `robot_vog` models one family of ground robots with four steerable wheels.
 
