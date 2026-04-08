@@ -121,14 +121,20 @@
     ${xacro.fatal("xacro arg fork_limits must contain exactly 4 values: lower upper velocity effort")}
   </xacro:if>
 
-  <xacro:property name="fork_lower_limit"             value="${float(fork_limits_seq[0])}"/>
-  <xacro:property name="fork_upper_limit"             value="${float(fork_limits_seq[1])}"/>
-
   <!--
-  Lower limit for the fork joint must be less than or equal to upper limit, and the limits must
-  satisfy lower <= 0 <= upper so that the joint can be at its rest position (q=0) without violating
-  the limits.
+  Lower limit for the fork joint must be less than or equal to upper limit.
+  Limits must satisfy lower <= 0 <= upper so that the joint can be initialized at its rest
+  position (q=0) without violating the range motion.
+    - If lower > 0, then q=0 is outside the motion limits and the fork will be initialized in an
+      invalid configuration.
+    - If upper < 0, then q=0 is outside the motion limits and the fork will be initialized in an
+      invalid configuration too.
+  The distance floor-to-bottom_face_carriage must (fork_rest_clearance) be > fork_lower_limit,
+  otherwise the fork would collide with the floor when moving to its lower limit position.
   -->
+  <xacro:property name="fork_lower_limit" value="${float(fork_limits_seq[0])}"/>
+  <xacro:property name="fork_upper_limit" value="${float(fork_limits_seq[1])}"/>
+
   <xacro:if value="${fork_lower_limit > fork_upper_limit}">
     ${xacro.fatal("xacro arg fork_limits must satisfy lower &lt;= upper")}
   </xacro:if>
@@ -137,117 +143,18 @@
     ${xacro.fatal("xacro arg fork_limits must satisfy lower &lt;= 0 &lt;= upper, so q=0 is valid")}
   </xacro:if>
 
-  <xacro:if value="${fork_lower_limit &lt; -float(fork_rest_clearance)}">
+  <!--
+  Remember that after the fork limits checks above, the fork_lower_limit is negative, so the
+  condition is:
+  if abs(fork_lower_limit) > fork_rest_clearance -> the fork can collide with the floor when moving
+  to its lower limit position
+  -->
+  <xacro:if value="${python.abs(fork_lower_limit) > float(fork_rest_clearance)}">
     ${xacro.fatal("xacro args fork_limits and fork_rest_clearance are inconsistent: the allowed downward fork travel exceeds the rest clearance")}
   </xacro:if>
 
-  <!--
-  The mast is the vertical structure that supports the fork and guides its vertical motion.
-  `mast_left_beam` and `mast_right_beam` are the two vertical bars fixed to the robot body.
-  -->
-
-  <!-- mast_left_beam -->
-  <xacro:property name="mast_mass"     value="10.0"/>
-  <xacro:property name="mast_len_x"    value="0.03"/>
-  <xacro:property name="mast_len_y"    value="0.03"/>
-  <xacro:property name="mast_len_z"    value="${fork_upper_limit - fork_lower_limit}"/>
-  <xacro:property name="mast_origin_x" value="0"/>
-  <xacro:property name="mast_origin_y" value="0"/>
-  <xacro:property name="mast_origin_z" value="0"/>
-
-  <link name="${robot_prefix}${base_name}_mast_left_beam_link">
-    <xacro:if value="${fork_use_visual}">
-      <visual>
-        <geometry>
-          <box size="${mast_len_x} ${mast_len_y} ${mast_len_z}"/>
-        </geometry>
-        <origin rpy="0 0 0" xyz="${mast_origin_x} ${mast_origin_y} ${mast_origin_z}"/>
-        <material name="${robot_prefix}${fork_name}_color">
-          <color rgba="${fork_color}"/>
-        </material>
-      </visual>
-    </xacro:if>
-
-    <xacro:if value="${fork_use_collision}">
-      <collision>
-        <geometry>
-          <box size="${mast_len_x} ${mast_len_y} ${mast_len_z}"/>
-        </geometry>
-        <origin rpy="0 0 0" xyz="${mast_origin_x} ${mast_origin_y} ${mast_origin_z}"/>
-      </collision>
-    </xacro:if>
-
-    <xacro:if value="${fork_use_inertial}">
-      <xacro:solid_box_inertial mass="${mast_mass}"
-                                size="${mast_len_x} ${mast_len_y} ${mast_len_z}"
-                                origin="${mast_origin_x} ${mast_origin_y} ${mast_origin_z} 0 0 0"/>
-    </xacro:if>
-
-    <xacro:unless value="${fork_use_inertial}">
-      <xacro:null_inertia/>
-    </xacro:unless>
-  </link>
-
-  <xacro:property name="mast_mount_x" value="${0.5 * (top_body_size_x + mast_len_x)}"/>
-  <xacro:property name="mast_mount_y" value="${0.5 * (top_body_size_y - mast_len_y)}"/>
-  <!--
-  mast goes from
-  inferior = -ground_clearance + fork_rest_clearance + fork_lower_limit
-  to
-  superior = inf + mast_len_z
-
-  The center is (sup + inf)/2 = (inf + mast_len_z + inf)/2 = inf + mast_len_z/2
-  -->
-  <xacro:property name="mast_mount_z" value="${-ground_clearance + fork_rest_clearance + fork_lower_limit + (0.5 * mast_len_z)}"/>
-
-  <joint name="${robot_prefix}${base_name}_mast_left_beam_joint" type="fixed">
-    <parent link="${robot_prefix}${base_name}_link"/>
-    <child link="${robot_prefix}${base_name}_mast_left_beam_link"/>
-    <origin rpy="0 0 0" xyz="${mast_mount_x} ${mast_mount_y} ${mast_mount_z}"/>
-  </joint>
-
-  <!-- mast_right_beam -->
-  <link name="${robot_prefix}${base_name}_mast_right_beam_link">
-    <xacro:if value="${fork_use_visual}">
-      <visual>
-        <geometry>
-          <box size="${mast_len_x} ${mast_len_y} ${mast_len_z}"/>
-        </geometry>
-        <origin rpy="0 0 0" xyz="${mast_origin_x} ${mast_origin_y} ${mast_origin_z}"/>
-        <material name="${robot_prefix}${fork_name}_color">
-          <color rgba="${fork_color}"/>
-        </material>
-      </visual>
-    </xacro:if>
-
-    <xacro:if value="${fork_use_collision}">
-      <collision>
-        <geometry>
-          <box size="${mast_len_x} ${mast_len_y} ${mast_len_z}"/>
-        </geometry>
-        <origin rpy="0 0 0" xyz="${mast_origin_x} ${mast_origin_y} ${mast_origin_z}"/>
-      </collision>
-    </xacro:if>
-
-    <xacro:if value="${fork_use_inertial}">
-      <xacro:solid_box_inertial mass="${mast_mass}"
-                                size="${mast_len_x} ${mast_len_y} ${mast_len_z}"
-                                origin="${mast_origin_x} ${mast_origin_y} ${mast_origin_z} 0 0 0"/>
-    </xacro:if>
-
-    <xacro:unless value="${fork_use_inertial}">
-      <xacro:null_inertia/>
-    </xacro:unless>
-  </link>
-
-  <joint name="${robot_prefix}${base_name}_mast_right_beam_joint" type="fixed">
-    <parent link="${robot_prefix}${base_name}_link"/>
-    <child link="${robot_prefix}${base_name}_mast_right_beam_link"/>
-    <origin rpy="0 0 0" xyz="${mast_mount_x} ${-mast_mount_y} ${mast_mount_z}"/>
-  </joint>
-
   <xacro:property name="fork_carriage_len_x"   value="0.03"/>
-  <xacro:property name="fork_carriage_mount_x" value="${mast_mount_x + (0.5*mast_len_x)}"/>
+  <xacro:property name="fork_carriage_mount_x" value="${0.5 * top_body_size_x}"/>
   <xacro:property name="fork_carriage_mount_y" value="0"/>
   <xacro:property name="fork_carriage_mount_z" value="${-ground_clearance + fork_rest_clearance}"/>
   <xacro:property name="tine_size_x"           value="1.20"/>
@@ -264,8 +171,7 @@
                      use_v_mesh="${fork_use_v_mesh}"
                      color="${fork_color}"
                      use_c_mesh="${fork_use_c_mesh}"
-                     carriage_len_x="${fork_carriage_len_x}"
-                     carriage_len_y="${top_body_size_y}"
+                     carriage_size_x="${fork_carriage_len_x}"
                      limits="${fork_limits}"
                      joint_parent_fr_root_fr="${fork_carriage_mount_x} ${fork_carriage_mount_y} ${fork_carriage_mount_z} 0 0 0"/>
 
@@ -313,23 +219,19 @@
 
   <!--
   This camera is mounted on `${robot_prefix}${fork_name}_carriage_link`.
-  The D435 root frame is `${prefix}${name}_bottom_screw_frame`.
-  The mesh center is offset from that root frame by:
-  x = 0.002375 m, y = 0 m, z = 0.0125 m.
-
-  The mesh size is:
-  x = 0.025053 m, y = 0.089909 m, z = 0.025000 m.
-
-  The rear face of the camera is at:
-  x_min = 0.002375 - 0.5 * 0.025053 = -0.0101515 m.
-
-  Setting fork_rgbd_mount_x to 0.0101515 m places that rear face at x = 0 in the
-  carriage frame. Setting fork_rgbd_mount_z to tine_size_z places the camera on top of
-  the carriage body that joins the two tines.
+  The root frame for the realsense_d435 camera is ${prefix}${name}_bottom_screw_frame.
+  The frame of the mesh is located at its center.
+  Sizes of the mesh are: (size_x = 0.025053 m, size_y = 0.089909 m, size_z = 0.025000 m)
+  The frame of the mesh is located, w.r.t ${prefix}${name}_bottom_screw_frame, at
+  (x = 0.002375 m, y = 0 m, z = 0.0125 m, R = 0 rad, P = 0 rad, Y = 0 rad).
+  The bottom face of the mesh is touching the root frame of the camera.
+  Therefore
+    x_min = 0.002375 - (0.025053/2) m = -0.0101515 m.
+    x_max = 0.002375 + (0.025053/2) m = 0.0148995 m.
   -->
-  <xacro:property name="fork_rgbd_mount_x" value="0.0101515"/>
+  <xacro:property name="fork_rgbd_mount_x" value="${-0.0148995 - 0.01}"/>
   <xacro:property name="fork_rgbd_mount_y" value="0"/>
-  <xacro:property name="fork_rgbd_mount_z" value="${tine_size_z}"/>
+  <xacro:property name="fork_rgbd_mount_z" value="0"/>
 
   <xacro:realsense_d435_rgbd name="fork_camera"
                              prefix="${robot_prefix}"
@@ -448,13 +350,9 @@
   The D435 front face is 0.0149 m in front of its root frame.
   tine_size_x - 0.0149 - 0.01 places the camera 1 cm behind the front opening of the left tine.
   -->
-  <xacro:property name="left_tine_rgbd_mount_x"
-                  value="${fork_carriage_len_x + tine_size_x - 0.0149 - 0.01}"/>
-
-  <xacro:property name="left_tine_rgbd_mount_y"
-                  value="${0.5*(tine_separation + tine_size_y)}"/>
-
-  <xacro:property name="left_tine_rgbd_mount_z" value="0.001"/>
+  <xacro:property name="left_tine_rgbd_mount_x" value="${tine_size_x - 0.0149 - 0.01}"/>
+  <xacro:property name="left_tine_rgbd_mount_y" value="${0.5*(tine_separation + tine_size_y)}"/>
+  <xacro:property name="left_tine_rgbd_mount_z" value="${-tine_size_z + 0.001}"/>
 
   <xacro:realsense_d435_rgbd name="left_tine_camera"
                              prefix="${robot_prefix}"
