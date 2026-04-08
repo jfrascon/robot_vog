@@ -9,15 +9,15 @@
 #   (e.g., https://<server>/<repository_path>).
 #
 repositories:
-    robotics_description:
-        type: git
-        url: https://github.com/jfrascon/robotics_description.git
-        version: b1e76436868ec5dd4c388bcd0eb1b4362fd8c835
-        #exclude: [] # list of repos files inside repository_path to exclude (optional)
     ground_vehicle_kinematics:
         type: git
         url: https://github.com/jfrascon/ground_vehicle_kinematics.git
         version: 17bc2049a8f3673e094ce59293d96acb6c2b0635
+        #exclude: [] # list of repos files inside repository_path to exclude (optional)
+    robotics_description:
+        type: git
+        url: https://github.com/jfrascon/robotics_description.git
+        version: 0f149f36870e7621096d73fa01a4a9e278a5abea
         #exclude: [] # list of repos files inside repository_path to exclude (optional)
     ros2_launch_helpers:
         type: git
