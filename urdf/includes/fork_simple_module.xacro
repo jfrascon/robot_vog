@@ -173,6 +173,7 @@
                      color="${fork_color}"
                      use_c_mesh="${fork_use_c_mesh}"
                      carriage_size_x="${fork_carriage_len_x}"
+                     carriage_size_z="${fork_carriage_len_z}"
                      limits="${fork_limits}"
                      joint_parent_fr_root_fr="${fork_carriage_mount_x} ${fork_carriage_mount_y} ${fork_carriage_mount_z} 0 0 0"/>
 
