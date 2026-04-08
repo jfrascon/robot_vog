@@ -153,7 +153,8 @@
     ${xacro.fatal("xacro args fork_limits and fork_rest_clearance are inconsistent: the allowed downward fork travel exceeds the rest clearance")}
   </xacro:if>
 
-  <xacro:property name="fork_carriage_len_x"   value="0.03"/>
+  <xacro:property name="fork_carriage_len_x"   value="0.06"/>
+  <xacro:property name="fork_carriage_len_z"   value="0.06"/>
   <xacro:property name="fork_carriage_mount_x" value="${0.5 * top_body_size_x}"/>
   <xacro:property name="fork_carriage_mount_y" value="0"/>
   <xacro:property name="fork_carriage_mount_z" value="${-ground_clearance + fork_rest_clearance}"/>
@@ -350,14 +351,14 @@
   The D435 front face is 0.0149 m in front of its root frame.
   tine_size_x - 0.0149 - 0.01 places the camera 1 cm behind the front opening of the left tine.
   -->
-  <xacro:property name="left_tine_rgbd_mount_x" value="${tine_size_x - 0.0149 - 0.01}"/>
-  <xacro:property name="left_tine_rgbd_mount_y" value="${0.5*(tine_separation + tine_size_y)}"/>
+  <xacro:property name="left_tine_rgbd_mount_x" value="${(0.5 * tine_size_x) - 0.0149 - 0.01}"/>
+  <xacro:property name="left_tine_rgbd_mount_y" value="0"/>
   <xacro:property name="left_tine_rgbd_mount_z" value="${-tine_size_z + 0.001}"/>
 
   <xacro:realsense_d435_rgbd name="left_tine_camera"
                              prefix="${robot_prefix}"
                              namespace="${robot_namespace}"
-                             parent_frame="${robot_prefix}${fork_name}_carriage_link"
+                             parent_frame="${robot_prefix}${fork_name}_left_tine_link"
                              use_visual="${left_tine_rgbd_use_visual}"
                              use_collision="${left_tine_rgbd_use_collision}"
                              use_inertial="${left_tine_rgbd_use_inertial}"
@@ -471,7 +472,7 @@
       name="right_tine_camera"
       prefix="${robot_prefix}"
       namespace="${robot_namespace}"
-      parent_frame="${robot_prefix}${fork_name}_carriage_link"
+      parent_frame="${robot_prefix}${fork_name}_right_tine_link"
       use_visual="${right_tine_rgbd_use_visual}"
       use_collision="${right_tine_rgbd_use_collision}"
       use_inertial="${right_tine_rgbd_use_inertial}"

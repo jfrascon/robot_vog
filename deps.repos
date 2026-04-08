@@ -17,7 +17,7 @@ repositories:
     robotics_description:
         type: git
         url: https://github.com/jfrascon/robotics_description.git
-        version: 0f149f36870e7621096d73fa01a4a9e278a5abea
+        version: e39a901bf84e7e9b8ba922ff563aac03b7be3b3b
         #exclude: [] # list of repos files inside repository_path to exclude (optional)
     ros2_launch_helpers:
         type: git
