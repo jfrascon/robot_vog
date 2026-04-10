@@ -8,7 +8,6 @@
   -->
 
   <xacro:include filename="${robotics_description_pkg_dir}/urdf/sensors/all_sensors_macro.xacro"/>
-  <xacro:include filename="${robotics_description_pkg_dir}/urdf/sensors/lidars/sick_s300.xacro"/>
   <xacro:include filename="${robotics_description_pkg_dir}/urdf/extras/fork_simple/fork_simple_macro.xacro"/>
   <xacro:include filename="${robotics_description_pkg_dir}/urdf/extras/fork_simple/generic_macros/plugin_fork_joint_f64_pos_velcmd_macro.xacro"/>
 
