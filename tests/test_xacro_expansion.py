@@ -22,9 +22,7 @@ def test_xacro_uses_primitive_wheel_visual_when_s_wheel_use_v_mesh_is_false(tmp_
     urdf_path = tmp_path / 'model_base_no_wheel_mesh.urdf'
     xacro_path = PACKAGE_DIR / 'urdf' / 'models' / 'model_base.xacro'
 
-    result = run_bash(
-        f'xacro "{xacro_path}" s_wheel_use_v_mesh:=False > "{urdf_path}" && check_urdf "{urdf_path}"'
-    )
+    result = run_bash(f'xacro "{xacro_path}" s_wheel_use_v_mesh:=False > "{urdf_path}" && check_urdf "{urdf_path}"')
 
     output = result.stdout + result.stderr
 
