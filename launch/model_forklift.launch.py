@@ -2,19 +2,18 @@ import os
 
 import ros2_launch_helpers as rlh
 from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription, LaunchDescriptionEntity
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, SetLaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 
+from launch import LaunchDescription, LaunchDescriptionEntity
 from robot_vog import model_utils
 
 
 def generate_launch_description() -> LaunchDescription:
     """
-    Build the launch description for the `forklift` model of the `robot_vog`
-    package.
+    Build the launch description for this model of the `robot_vog` package.
     """
 
     robot_model = 'forklift'
@@ -29,7 +28,7 @@ def generate_launch_description() -> LaunchDescription:
         DeclareLaunchArgument(
             'params_file',
             default_value=os.path.join(
-                get_package_share_directory('robot_vog'), 'config', 'model_forklift', 'example_params.yaml'
+                get_package_share_directory('robot_vog'), 'config', f'model_{robot_model}', 'example_params.yaml'
             ),
             description='Path to params file. If empty, the selected model launch picks its default.',
         ),
@@ -42,7 +41,7 @@ def generate_launch_description() -> LaunchDescription:
         DeclareLaunchArgument(
             'bridge_file',
             default_value=os.path.join(
-                get_package_share_directory('robot_vog'), 'config', 'model_forklift', 'example_bridge.yaml'
+                get_package_share_directory('robot_vog'), 'config', f'model_{robot_model}', 'example_bridge.yaml'
             ),
             description='Path to bridge file. If empty, the selected model launch picks its default.',
         ),

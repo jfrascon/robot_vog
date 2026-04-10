@@ -28,7 +28,7 @@
   <xacro:arg name="fork_use_v_mesh"     default="True"/>
   <xacro:arg name="fork_color"          default="0.1 0.1 0.1 1.0"/>
   <xacro:arg name="fork_use_c_mesh"     default="True"/>
-  <xacro:arg name="fork_limits"         default="-0.01 0.8 0.5 20000.0"/>
+  <xacro:arg name="fork_limits"         default="-0.005 0.8 0.5 20000.0"/>
   <xacro:arg name="fork_rest_clearance" default="0.03"/>
 
   <!-- Arguments for the realsense mounted on the fork. -->
@@ -121,32 +121,23 @@
   </xacro:if>
 
   <!--
-  Lower limit for the fork joint must be less than or equal to upper limit.
-  Limits must satisfy lower <= 0 <= upper so that the joint can be initialized at its rest
-  position (q=0) without violating the range motion.
-    - If lower > 0, then q=0 is outside the motion limits and the fork will be initialized in an
-      invalid configuration.
-    - If upper < 0, then q=0 is outside the motion limits and the fork will be initialized in an
-      invalid configuration too.
+  The fork_simple macro checks that the fork limits are valid for the fork joint.
+  This module only checks the part that is specific to the robot installation.
+
+  fork_lower_limit must be less than or equal to zero so that this installation allows downward
+  fork motion from the spawned joint position.
   The distance floor-to-bottom_face_carriage must (fork_rest_clearance) be > fork_lower_limit,
   otherwise the fork would collide with the floor when moving to its lower limit position.
   -->
   <xacro:property name="fork_lower_limit" value="${float(fork_limits_seq[0])}"/>
-  <xacro:property name="fork_upper_limit" value="${float(fork_limits_seq[1])}"/>
 
-  <xacro:if value="${fork_lower_limit > fork_upper_limit}">
-    ${xacro.fatal("xacro arg fork_limits must satisfy lower &lt;= upper")}
-  </xacro:if>
-
-  <xacro:if value="${fork_lower_limit > 0.0 or fork_upper_limit &lt; 0.0}">
-    ${xacro.fatal("xacro arg fork_limits must satisfy lower &lt;= 0 &lt;= upper, so q=0 is valid")}
+  <xacro:if value="${fork_lower_limit > 0.0}">
+    ${xacro.fatal("xacro arg fork_limits must satisfy lower &lt;= 0 for this robot installation")}
   </xacro:if>
 
   <!--
-  Remember that after the fork limits checks above, the fork_lower_limit is negative, so the
-  condition is:
-  if abs(fork_lower_limit) > fork_rest_clearance -> the fork can collide with the floor when moving
-  to its lower limit position
+  At this point fork_lower_limit is less than or equal to zero, so the downward fork travel is
+  abs(fork_lower_limit).
   -->
   <xacro:if value="${python.abs(fork_lower_limit) > float(fork_rest_clearance)}">
     ${xacro.fatal("xacro args fork_limits and fork_rest_clearance are inconsistent: the allowed downward fork travel exceeds the rest clearance")}
@@ -353,7 +344,8 @@
   -->
   <xacro:property name="left_tine_rgbd_mount_x" value="${(0.5 * tine_size_x) - 0.0149 - 0.01}"/>
   <xacro:property name="left_tine_rgbd_mount_y" value="0"/>
-  <xacro:property name="left_tine_rgbd_mount_z" value="${-tine_size_z + 0.001}"/>
+  <xacro:property name="tine_wall_thickness" value="0.001"/>
+  <xacro:property name="left_tine_rgbd_mount_z" value="${-tine_size_z + tine_wall_thickness}"/>
 
   <xacro:realsense_d435_rgbd name="left_tine_camera"
                              prefix="${robot_prefix}"
