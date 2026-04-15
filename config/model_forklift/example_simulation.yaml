@@ -70,6 +70,14 @@ fork_controller:
   enabled: True
   initial_position: 0.0
   topic: joint_commands/fork # received
+  p_gain: 200.0
+  i_gain: 5.0
+  d_gain: 20.0
+  i_max: 50.0
+  i_min: -50.0
+  cmd_max: 200.0
+  cmd_min: -200.0
+  cmd_offset: 0.0
 
 # Plugin to publish the joint states of the robot.
 joint_state_publisher:

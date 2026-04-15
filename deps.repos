@@ -9,6 +9,11 @@
 #   (e.g., https://<server>/<repository_path>).
 #
 repositories:
+    fork_position_controller_server:
+        type: git
+        url: https://github.com/jfrascon/fork_position_controller_server.git
+        version: 0e1ea6c08d747023d609205887db6f26bffbdb24
+        #exclude: [] # list of repos files inside repository_path to exclude (optional)
     ground_vehicle_kinematics:
         type: git
         url: https://github.com/jfrascon/ground_vehicle_kinematics.git
