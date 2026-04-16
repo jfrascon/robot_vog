@@ -54,53 +54,6 @@ fork_rgbd_use_c_mesh:
   description: "Use a mesh for the fork RGBD collision. If False, use a primitive."
   choices: ["True", "true", "False", "false"]
 
-left_tine_rgbd_use_visual:
-  default_value: "True"
-  description: "Include visual element for the left tine RGBD camera."
-  choices: ["True", "true", "False", "false"]
-left_tine_rgbd_use_collision:
-  default_value: "True"
-  description: "Include collision element for the left tine RGBD camera."
-  choices: ["True", "true", "False", "false"]
-left_tine_rgbd_use_inertial:
-  default_value: "True"
-  description: "Include inertial element for the left tine RGBD camera."
-  choices: ["True", "true", "False", "false"]
-left_tine_rgbd_use_v_mesh:
-  default_value: "True"
-  description: "Use a mesh for left tine RGBD visual. If False, use a primitive."
-  choices: ["True", "true", "False", "false"]
-left_tine_rgbd_color:
-  default_value: "0.5 0.5 0.5 1.0"
-  description: "Optional left tine RGBD color override 'r g b a'. Empty keeps mesh color."
-left_tine_rgbd_use_c_mesh:
-  default_value: "False"
-  description: "Use a mesh for left tine RGBD collision. If False, use a primitive."
-  choices: ["True", "true", "False", "false"]
-
-right_tine_rgbd_use_visual:
-  default_value: "True"
-  description: "Include visual element for the right tine RGBD camera."
-  choices: ["True", "true", "False", "false"]
-right_tine_rgbd_use_collision:
-  default_value: "True"
-  description: "Include collision element for the right tine RGBD camera."
-  choices: ["True", "true", "False", "false"]
-right_tine_rgbd_use_inertial:
-  default_value: "True"
-  description: "Include inertial element for the right tine RGBD camera."
-  choices: ["True", "true", "False", "false"]
-right_tine_rgbd_use_v_mesh:
-  default_value: "True"
-  description: "Use a mesh for right tine RGBD visual. If False, use a primitive."
-  choices: ["True", "true", "False", "false"]
-right_tine_rgbd_color:
-  default_value: "0.5 0.5 0.5 1.0"
-  description: "Optional right tine RGBD color override 'r g b a'. Empty keeps mesh color."
-right_tine_rgbd_use_c_mesh:
-  default_value: "False"
-  description: "Use a mesh for right tine RGBD collision. If False, use a primitive."
-  choices: ["True", "true", "False", "false"]
 
 back_top_lidar_use_visual:
   default_value: "True"

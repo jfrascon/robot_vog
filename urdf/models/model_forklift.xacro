@@ -8,8 +8,6 @@
   The fork_simple module contains:
   - A simlpe fork.
   - A realsense d435 camera (rgbd) mounted on the fork.
-  - A realsense d435 camera (rgbd) inside the left tine.
-  - A realsense d435 camera (rgbd) inside the right tine.
   - A Robosense Airy lidar mounted on the back of the robot.
   - A Robosense Airy lidar mounted on the front of the robot.
   - A front bottom lidar mounted on the robot body.
