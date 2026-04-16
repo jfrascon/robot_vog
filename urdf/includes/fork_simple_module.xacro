@@ -30,6 +30,7 @@
   <xacro:arg name="fork_use_c_mesh"     default="True"/>
   <xacro:arg name="fork_limits"         default="-0.02 0.8 0.2 20000.0"/>
   <xacro:arg name="fork_rest_clearance" default="0.03"/>
+  <xacro:arg name="fork_tine_open"      default="False"/>
 
   <!-- Arguments for the realsense mounted on the fork. -->
   <xacro:arg name="fork_rgbd_use_visual"         default="True"/>
@@ -144,6 +145,7 @@
                      use_v_mesh="${fork_use_v_mesh}"
                      color="${fork_color}"
                      use_c_mesh="${fork_use_c_mesh}"
+                     tine_open="$(arg fork_tine_open)"
                      carriage_size_x="${fork_carriage_len_x}"
                      carriage_size_z="${fork_carriage_len_z}"
                      limits="${fork_limits}"
@@ -285,8 +287,6 @@
                              sim_infra2_image_topic="${fork_camera_infra2_sim_topic}"
                              sim_infra2_camera_info_topic="${fork_camera_infra2_sim_info_topic}"
                              sim_infra2_trigger_topic="${fork_camera_infra2_sim_trigger_topic}"/>
-
-
 
   <!-- ===================================================================== -->
   <!-- FRONT TOP ROBOSENSE AIRY -->

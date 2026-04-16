@@ -29,6 +29,10 @@ fork_limits:
 fork_rest_clearance:
   default_value: "0.03"
   description: "Rest clearance between the fork and the ground."
+fork_tine_open:
+  default_value: "False"
+  description: "If True, tines are left open (no front closing plates). If False, front plates close the tine openings."
+  choices: ["True", "true", "False", "false"]
 
 fork_rgbd_use_visual:
   default_value: "True"
@@ -53,7 +57,6 @@ fork_rgbd_use_c_mesh:
   default_value: "False"
   description: "Use a mesh for the fork RGBD collision. If False, use a primitive."
   choices: ["True", "true", "False", "false"]
-
 
 back_top_lidar_use_visual:
   default_value: "True"
