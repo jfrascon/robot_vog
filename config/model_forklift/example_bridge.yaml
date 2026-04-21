@@ -139,7 +139,7 @@
   qos_profile: SENSOR_DATA
   lazy: True
 
-- topic_name: front_bottom/scan
+- topic_name: front_bottom_lidar/scan
   ros_type_name: sensor_msgs/msg/LaserScan
   gz_type_name: gz.msgs.LaserScan
   direction: GZ_TO_ROS
