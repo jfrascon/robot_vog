@@ -41,7 +41,7 @@ repos:
   # Ruff replaces both Black (formatter) and isort (import sorting)
 - repo: https://github.com/astral-sh/ruff-pre-commit
     # Find the latest version from https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.15.10
+  rev: v0.15.11
   hooks:
       # Run the linter and automatically fix any safe issues.
   - id: ruff
