@@ -7,77 +7,77 @@
   gz_type_name: gz.msgs.Twist
   direction: ROS_TO_GZ
   qos_profile: SENSOR_DATA
-  lazy: True
+  lazy: true
 
 - topic_name: base_pose_ground_truth
   ros_type_name: nav_msgs/msg/Odometry
   gz_type_name: gz.msgs.OdometryWithCovariance
   direction: GZ_TO_ROS
   qos_profile: SENSOR_DATA
-  lazy: True
+  lazy: true
 
 - topic_name: tf_sim_world_fr_robot_root_fr
   ros_type_name: tf2_msgs/msg/TFMessage
   gz_type_name: gz.msgs.Pose_V
   direction: GZ_TO_ROS
   qos_profile: SENSOR_DATA
-  lazy: False
+  lazy: false
 
 - topic_name: joint_commands/base
   ros_type_name: actuator_msgs/msg/Actuators
   gz_type_name: gz.msgs.Actuators
   direction: ROS_TO_GZ
   qos_profile: SENSOR_DATA
-  lazy: True
+  lazy: true
 
 - topic_name: joint_commands/fork
   ros_type_name: std_msgs/msg/Float64
   gz_type_name: gz.msgs.Double
   direction: ROS_TO_GZ
   qos_profile: SENSOR_DATA
-  lazy: True
+  lazy: true
 
 - topic_name: joint_states
   ros_type_name: sensor_msgs/msg/JointState
   gz_type_name: gz.msgs.Model
   direction: GZ_TO_ROS
   qos_profile: SENSOR_DATA
-  lazy: True
+  lazy: true
 
 - topic_name: fork_camera/rgbd/image
   ros_type_name: sensor_msgs/msg/Image
   gz_type_name: gz.msgs.Image
   direction: GZ_TO_ROS
   qos_profile: SENSOR_DATA
-  lazy: True
+  lazy: true
 
 - topic_name: fork_camera/rgbd/depth_image
   ros_type_name: sensor_msgs/msg/Image
   gz_type_name: gz.msgs.Image
   direction: GZ_TO_ROS
   qos_profile: SENSOR_DATA
-  lazy: True
+  lazy: true
 
 - topic_name: fork_camera/rgbd/points
   ros_type_name: sensor_msgs/msg/PointCloud2
   gz_type_name: gz.msgs.PointCloudPacked
   direction: GZ_TO_ROS
   qos_profile: SENSOR_DATA
-  lazy: True
+  lazy: true
 
 - topic_name: fork_camera/rgbd/camera_info
   ros_type_name: sensor_msgs/msg/CameraInfo
   gz_type_name: gz.msgs.CameraInfo
   direction: GZ_TO_ROS
   qos_profile: SENSOR_DATA
-  lazy: True
+  lazy: true
 
 - topic_name: fork_camera/rgbd/trigger
   ros_type_name: std_msgs/msg/Empty
   gz_type_name: gz.msgs.Empty
   direction: ROS_TO_GZ
   qos_profile: DEFAULT
-  lazy: True
+  lazy: true
 
 # The fork infrared bridges are currently commented because fork_camera_infra1
 # and fork_camera_infra2 are disabled in the simulation
@@ -130,32 +130,32 @@
   gz_type_name: gz.msgs.PointCloudPacked
   direction: GZ_TO_ROS
   qos_profile: SENSOR_DATA
-  lazy: True
+  lazy: true
 
 - topic_name: front_top_lidar/imu/data
   ros_type_name: sensor_msgs/msg/Imu
   gz_type_name: gz.msgs.IMU
   direction: GZ_TO_ROS
   qos_profile: SENSOR_DATA
-  lazy: True
+  lazy: true
 
 - topic_name: front_bottom_lidar/scan
   ros_type_name: sensor_msgs/msg/LaserScan
   gz_type_name: gz.msgs.LaserScan
   direction: GZ_TO_ROS
   qos_profile: SENSOR_DATA
-  lazy: True
+  lazy: true
 
 - topic_name: back_top_lidar/scan/points
   ros_type_name: sensor_msgs/msg/PointCloud2
   gz_type_name: gz.msgs.PointCloudPacked
   direction: GZ_TO_ROS
   qos_profile: SENSOR_DATA
-  lazy: True
+  lazy: true
 
 - topic_name: back_top_lidar/imu/data
   ros_type_name: sensor_msgs/msg/Imu
   gz_type_name: gz.msgs.IMU
   direction: GZ_TO_ROS
   qos_profile: SENSOR_DATA
-  lazy: True
+  lazy: true

@@ -4,16 +4,16 @@
 
 # Plugin to control the mobile base in velocity.
 base_velocity_controller:
-  enabled: True
+  enabled: true
   topic: cmd_vel
-  initial_linear_vel: { "x": 0.0, "y": 0.0, "z": 0.0 }
-  initial_angular_vel: { "x": 0.0, "y": 0.0, "z": 0.0 }
+  initial_linear_vel: {"x": 0.0, "y": 0.0, "z": 0.0}
+  initial_angular_vel: {"x": 0.0, "y": 0.0, "z": 0.0}
 
 base_pose_ground_truth_publisher:
-  enabled: True
+  enabled: true
   fixed_frame: map
-  offset: { "x": 0.0, "y": 0.0, "z": 0.0, "R": 0.0, "P": 0.0, "Y": 0.0 }
-  global_offset: { "x": 0.0, "y": 0.0, "z": 0.0, "R": 0.0, "P": 0.0, "Y": 0.0 }
+  offset: {"x": 0.0, "y": 0.0, "z": 0.0, "R": 0.0, "P": 0.0, "Y": 0.0}
+  global_offset: {"x": 0.0, "y": 0.0, "z": 0.0, "R": 0.0, "P": 0.0, "Y": 0.0}
   gaussian_noise: 0.0
   publication_frequency: 50.0
   nav_topic_no_cov: base_pose_ground_truth_no_cov # published
@@ -22,25 +22,25 @@ base_pose_ground_truth_publisher:
 
 # Plugin to control the steering joint of the steerable wheel 0
 base_steerable_wheel_0_steering_joint_controller:
-  enabled: True
+  enabled: true
   initial_angle: 0.0
   topic: joint_commands/base # received
 
 # Plugin to control the steering joint of the steerable wheel 1
 base_steerable_wheel_1_steering_joint_controller:
-  enabled: True
+  enabled: true
   initial_angle: 0.0
   topic: joint_commands/base # received
 
 # Plugin to control the steering joint of the steerable wheel 2
 base_steerable_wheel_2_steering_joint_controller:
-  enabled: True
+  enabled: true
   initial_angle: 0.0
   topic: joint_commands/base # received
 
 # Plugin to control the steering joint of the steerable wheel 3
 base_steerable_wheel_3_steering_joint_controller:
-  enabled: True
+  enabled: true
   initial_angle: 0.0
   topic: joint_commands/base # received
 
@@ -50,22 +50,22 @@ base_steerable_wheel_3_steering_joint_controller:
 # If disabled, the wheels will not rotate visually, but the platform will still
 # move correctly.
 base_steerable_wheel_0_rotation_joint_controller:
-  enabled: True
+  enabled: true
   topic: joint_commands/base # received
 
 base_steerable_wheel_1_rotation_joint_controller:
-  enabled: True
+  enabled: true
   topic: joint_commands/base # received
 
 base_steerable_wheel_2_rotation_joint_controller:
-  enabled: True
+  enabled: true
   topic: joint_commands/base # received
 
 base_steerable_wheel_3_rotation_joint_controller:
-  enabled: True
+  enabled: true
   topic: joint_commands/base # received
 
 # Plugin to publish the joint states of the robot.
 joint_state_publisher:
-  enabled: True
+  enabled: true
   topic: joint_states # published
