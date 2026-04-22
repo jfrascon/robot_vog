@@ -24,10 +24,10 @@ fork_use_c_mesh:
   description: "Use a mesh for the fork collision. If False, use a primitive."
   choices: ["True", "true", "False", "false"]
 fork_limits:
-  default_value: "-0.02 0.8 0.2 20000.0"
+  default_value: "-0.006 0.2 0.2 20000.0"
   description: "Fork prismatic joint limits as 'lower upper velocity effort'."
 fork_rest_clearance:
-  default_value: "0.03"
+  default_value: "0.01"
   description: "Rest clearance between the fork and the ground."
 fork_tine_open:
   default_value: "False"

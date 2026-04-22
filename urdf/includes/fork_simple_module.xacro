@@ -28,8 +28,8 @@
   <xacro:arg name="fork_use_v_mesh"     default="True"/>
   <xacro:arg name="fork_color"          default="0.1 0.1 0.1 1.0"/>
   <xacro:arg name="fork_use_c_mesh"     default="True"/>
-  <xacro:arg name="fork_limits"         default="-0.02 0.8 0.2 20000.0"/>
-  <xacro:arg name="fork_rest_clearance" default="0.03"/>
+  <xacro:arg name="fork_limits"         default="-0.006 0.2 0.2 20000.0"/>
+  <xacro:arg name="fork_rest_clearance" default="0.01"/>
   <xacro:arg name="fork_tine_open"      default="False"/>
 
   <!-- Arguments for the realsense mounted on the fork. -->
@@ -128,7 +128,7 @@
 
   <xacro:property name="fork_carriage_len_x"   value="0.06"/>
   <xacro:property name="fork_carriage_len_z"   value="0.06"/>
-  <xacro:property name="fork_carriage_mount_x" value="${0.5 * top_body_size_x}"/>
+  <xacro:property name="fork_carriage_mount_x" value="${(0.5 * top_body_size_x) + 0.041}"/>
   <xacro:property name="fork_carriage_mount_y" value="0"/>
   <xacro:property name="fork_carriage_mount_z" value="${-ground_clearance + fork_rest_clearance}"/>
   <xacro:property name="tine_size_x"           value="1.20"/>
