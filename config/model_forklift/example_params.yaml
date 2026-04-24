@@ -34,7 +34,7 @@
 
     # These limits must match the fork joint limits configured in the robot xacro/URDF.
     lower_limit: -0.005
-    upper_limit: 0.8
+    upper_limit: 0.2
 
     # Goal succeeds when the measured position is within this absolute tolerance from the target.
     position_tolerance: 0.01

@@ -198,7 +198,7 @@ def _include_fork_position_controller_server() -> IncludeLaunchDescription:
         # `params_file` (def: 'package://fork_position_controller_server/config/example_params.yaml')
         # `use_sim_time` (def: 'False')
         # `command_topic` (def: '')
-        # `joint_state_topic` (def: '')
+        # `joint_states_topic` (def: '')
         # `joint_name` (def: '')
         # `lower_limit` (def: '')
         # `upper_limit` (def: '')

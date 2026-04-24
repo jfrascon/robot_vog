@@ -28,7 +28,7 @@
   <xacro:arg name="fork_use_v_mesh"     default="True"/>
   <xacro:arg name="fork_color"          default="0.1 0.1 0.1 1.0"/>
   <xacro:arg name="fork_use_c_mesh"     default="True"/>
-  <xacro:arg name="fork_limits"         default="-0.006 0.2 0.2 20000.0"/>
+  <xacro:arg name="fork_limits"         default="-0.005 0.2 0.2 20000.0"/>
   <xacro:arg name="fork_rest_clearance" default="0.01"/>
   <xacro:arg name="fork_tine_open"      default="False"/>
 

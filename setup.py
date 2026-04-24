@@ -47,6 +47,5 @@ setup(
     description='Deployment package for the robot_vog family',
     license='BSD-3-Clause',
     extras_require={'test': ['pytest']},
-    entry_points={'console_scripts': []},
     python_requires='>=3.8',
 )
