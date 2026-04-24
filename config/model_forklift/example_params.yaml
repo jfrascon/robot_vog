@@ -1,5 +1,3 @@
-# THE PARAMETER `USE_SIM_TIME` IS MANAGED IN LAUNCH FILES, NOT HERE.
-
 /**/robot_state_publisher:
   ros__parameters:
     use_sim_time: $(var use_sim_time)
@@ -21,7 +19,7 @@
 
 /**/fork_position_controller_server:
   ros__parameters:
-    # use_sim_time IS automatically handled, no need to specify here.
+    use_sim_time: $(var use_sim_time)
 
     # Position command topic.
     command_topic: joint_commands/fork
@@ -33,20 +31,20 @@
     joint_name: $(var robot_prefix)fork_carriage_joint
 
     # These limits must match the fork joint limits configured in the robot xacro/URDF.
-    lower_limit: -0.005
+    lower_limit: 0
     upper_limit: 0.2
 
     # Goal succeeds when the measured position is within this absolute tolerance from the target.
     position_tolerance: 0.01
 
     # Rate at which the current position command is continuously published to the backend.
-    command_publish_frequency: 10.0 # Hz
+    command_publication_frequency: 10.0 # Hz
 
     # Rate at which the action server publishes feedback while a goal is active.
-    feedback_publish_frequency: 10.0 # Hz
+    feedback_publication_frequency: 10.0 # Hz
 
     # Rate at which the execution loop runs (convergence checks, cancellation, timeouts).
-    # Must be >= max(command_publish_frequency, feedback_publish_frequency).
+    # Must be >= max(command_publication_frequency, feedback_publication_frequency).
     execution_loop_frequency: 30.0 # Hz
 
     # Abort the goal if convergence is not achieved before this timeout expires.
