@@ -21,15 +21,6 @@
   ros__parameters:
     use_sim_time: $(var use_sim_time)
 
-    # Position command topic.
-    command_topic: joint_commands/fork
-
-    # JointState topic used to read the measured fork position.
-    joint_states_topic: joint_states
-
-    # This must match exactly the entry published in JointState.name.
-    joint_name: $(var robot_prefix)fork_carriage_joint
-
     # These limits must match the fork joint limits configured in the robot xacro/URDF.
     lower_limit: 0
     upper_limit: 0.2
@@ -52,6 +43,36 @@
 
     # Abort the goal if the measured JointState becomes too old.
     joint_state_timeout: 1.0 # s
+
+    # This must match exactly the entry published in JointState.name.
+    joint_name: $(var robot_prefix)fork_carriage_joint
+
+    # Position command topic.
+    command_topic: joint_commands/fork
+
+    # JointState topic used to read the measured fork position.
+    joint_states_topic: joint_states
+
+# Used in a real deployment (use_sim_time = False)
+/**/fork_serial:
+  ros__parameters:
+    use_sim_time: $(var use_sim_time)
+    port: /dev/ttyACM0
+    baudrate: 9600
+    data_bits: 8
+    flow_control: none
+    parity: none
+    stop_bits: 1.0
+    lower_limit: 0.0
+    upper_limit: 0.2
+    lower_ir_value: 0.1
+    upper_ir_value: 0.3
+    convergence_threshold: 0.01
+    execution_loop_frequency: 10.0
+    low_pass_filter_coeff: 0.10
+    joint_name: $(var robot_prefix)fork_carriage_joint
+    command_topic: joint_commands/fork
+    joint_states_topic: joint_states
 
 /**/four_swerve_kinematics:
   ros__parameters:

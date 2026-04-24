@@ -3,6 +3,7 @@ import os
 import ros2_launch_helpers as rlh
 from ament_index_python.packages import get_package_share_directory
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, SetLaunchConfiguration
+from launch.conditions import UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
@@ -69,6 +70,16 @@ def generate_launch_description() -> LaunchDescription:
                 'rsp_node_options', default_value=rlh.default_node_options_str(), description=rlh.NODE_OPTIONS_DESC
             ),
             DeclareLaunchArgument(
+                'fork_position_controller_server_node_options',
+                default_value=rlh.default_node_options_str(),
+                description=rlh.NODE_OPTIONS_DESC,
+            ),
+            DeclareLaunchArgument(
+                'fork_serial_node_options',
+                default_value=rlh.default_node_options_str(),
+                description=rlh.NODE_OPTIONS_DESC,
+            ),
+            DeclareLaunchArgument(
                 'four_swerve_kinematics_node_options',
                 default_value=rlh.default_node_options_str(),
                 description=rlh.NODE_OPTIONS_DESC,
@@ -76,16 +87,21 @@ def generate_launch_description() -> LaunchDescription:
             DeclareLaunchArgument(
                 'bridge_node_options', default_value=rlh.default_node_options_str(), description=rlh.NODE_OPTIONS_DESC
             ),
-            DeclareLaunchArgument(
-                'fork_position_controller_server_node_options',
-                default_value=rlh.default_node_options_str(),
-                description=rlh.NODE_OPTIONS_DESC,
-            ),
             ####################################################################
             # LOGGING OPTIONS
             ####################################################################
             DeclareLaunchArgument(
                 'rsp_node_logging_options',
+                default_value=rlh.default_logging_options_str(),
+                description=rlh.LOGGING_OPTIONS_DESC,
+            ),
+            DeclareLaunchArgument(
+                'fork_position_controller_server_node_logging_options',
+                default_value=rlh.default_logging_options_str(),
+                description=rlh.LOGGING_OPTIONS_DESC,
+            ),
+            DeclareLaunchArgument(
+                'fork_serial_node_logging_options',
                 default_value=rlh.default_logging_options_str(),
                 description=rlh.LOGGING_OPTIONS_DESC,
             ),
@@ -99,18 +115,14 @@ def generate_launch_description() -> LaunchDescription:
                 default_value=rlh.default_logging_options_str(),
                 description=rlh.LOGGING_OPTIONS_DESC,
             ),
-            DeclareLaunchArgument(
-                'fork_position_controller_server_node_logging_options',
-                default_value=rlh.default_logging_options_str(),
-                description=rlh.LOGGING_OPTIONS_DESC,
-            ),
             ####################################################################
             # NODES
             ####################################################################
             _include_rsp(),
-            _include_bridge(),
             _include_fork_position_controller_server(),
+            _include_fork_serial(),
             _include_four_swerve_kinematics(),
+            _include_bridge(),
         ]
     )
 
@@ -149,6 +161,96 @@ def _include_bridge() -> IncludeLaunchDescription:
     )
 
 
+def _include_fork_position_controller_server() -> IncludeLaunchDescription:
+    """
+    Include the fork position controller server launch file for this model.
+    """
+    return IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution(
+                [
+                    FindPackageShare('fork_position_controller_server'),
+                    'launch',
+                    'fork_position_controller_server.launch.py',
+                ]
+            )
+        ),
+        # Launch file `fork_position_controller_server.launch.py` uses the launch context keys:
+        # `namespace` (def: 'robot')
+        # `params_file` (def: 'package://fork_position_controller_server/config/example_fork_position_controller_server.yaml')
+        # `use_sim_time` (def: 'False')
+        # `lower_limit` (def: '')
+        # `upper_limit` (def: '')
+        # `position_tolerance` (def: '')
+        # `command_publication_frequency` (def: '')
+        # `feedback_publication_frequency` (def: '')
+        # `execution_loop_frequency` (def: '')
+        # `goal_timeout` (def: '')
+        # `joint_state_timeout` (def: '')
+        # `joint_name` (def: '')
+        # `command_topic` (def: '')
+        # `joint_states_topic` (def: '')
+        # `node_logging_options` (def: '')
+        # `node_options` (def: '')
+        #
+        # Launch context keys used by `fork_position_controller_server.launch.py` that do not appear
+        # in `launch_arguments` either are already present in the launch context, so there is no need
+        # to set them again in `launch_arguments`, or they will be inserted in the launch context
+        # with default value when the proper DeclaredLaunchArgument action from the file
+        # `fork_position_controller_server.launch.py` is executed.
+        launch_arguments={
+            'node_options': LaunchConfiguration('fork_position_controller_server_node_options'),
+            'node_logging_options': LaunchConfiguration('fork_position_controller_server_node_logging_options'),
+        }.items(),
+    )
+
+
+def _include_fork_serial() -> IncludeLaunchDescription:
+    """
+    Include the fork serial launch file only when `use_sim_time` is false.
+    """
+    return IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution(
+                [FindPackageShare('fork_position_controller_server'), 'launch', 'fork_serial.launch.py']
+            )
+        ),
+        # Launch file `fork_serial.launch.py` uses the launch context keys:
+        # `namespace` (def: 'robot')
+        # `params_file` (def: 'package://fork_position_controller_server/config/example_fork_serial.yaml')
+        # `use_sim_time` (def: 'False')
+        # `port` (def: '')
+        # `baudrate` (def: '')
+        # `data_bits` (def: '')
+        # `flow_control` (def: '')
+        # `parity` (def: '')
+        # `stop_bits` (def: '')
+        # `lower_limit` (def: '')
+        # `upper_limit` (def: '')
+        # `lower_ir_value` (def: '')
+        # `upper_ir_value` (def: '')
+        # `convergence_threshold` (def: '')
+        # `execution_loop_frequency` (def: '')
+        # `low_pass_filter_coeff` (def: '')
+        # `joint_name` (def: '')
+        # `command_topic` (def: '')
+        # `joint_states_topic` (def: '')
+        # `node_options` (def: '')
+        # `node_logging_options` (def: '')
+        #
+        # Launch context keys used by `fork_serial.launch.py` that do not appear in
+        # `launch_arguments` either are already present in the launch context, so there is no need
+        # to set them again in `launch_arguments`, or they will be inserted in the launch context
+        # with default value when the proper DeclaredLaunchArgument action from the file
+        # `fork_serial.launch.py` is executed.
+        launch_arguments={
+            'node_options': LaunchConfiguration('fork_serial_node_options'),
+            'node_logging_options': LaunchConfiguration('fork_serial_node_logging_options'),
+        }.items(),
+        condition=UnlessCondition(LaunchConfiguration('use_sim_time')),
+    )
+
+
 def _include_four_swerve_kinematics() -> IncludeLaunchDescription:
     """
     Include the four-swerve kinematics launch file for this model.
@@ -175,50 +277,6 @@ def _include_four_swerve_kinematics() -> IncludeLaunchDescription:
             'node_remappings': LaunchConfiguration('four_swerve_kinematics_node_remappings'),
             'node_options': LaunchConfiguration('four_swerve_kinematics_node_options'),
             'node_logging_options': LaunchConfiguration('four_swerve_kinematics_node_logging_options'),
-        }.items(),
-    )
-
-
-def _include_fork_position_controller_server() -> IncludeLaunchDescription:
-    """
-    Include the fork position controller server launch file for this model.
-    """
-    return IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [
-                    FindPackageShare('fork_position_controller_server'),
-                    'launch',
-                    'fork_position_controller_server.launch.py',
-                ]
-            )
-        ),
-        # Launch file `fork_position_controller_server.launch.py` uses the launch context keys:
-        # `namespace` (def: 'robot')
-        # `params_file` (def: 'package://fork_position_controller_server/config/example_params.yaml')
-        # `use_sim_time` (def: 'False')
-        # `lower_limit` (def: '')
-        # `upper_limit` (def: '')
-        # `position_tolerance` (def: '')
-        # `command_publication_frequency` (def: '')
-        # `feedback_publication_frequency` (def: '')
-        # `execution_loop_frequency` (def: '')
-        # `goal_timeout` (def: '')
-        # `joint_state_timeout` (def: '')
-        # `joint_name` (def: '')
-        # `command_topic` (def: '')
-        # `joint_states_topic` (def: '')
-        # `node_logging_options` (def: '')
-        # `node_options` (def: '')
-        #
-        # Launch context keys used by `fork_position_controller_server.launch.py` that do not appear
-        # in `launch_arguments` either are already present in the launch context, so there is no need
-        # to set them again in `launch_arguments`, or they will be inserted in the launch context
-        # with default value when the proper DeclaredLaunchArgument action from the file
-        # `fork_position_controller_server.launch.py` is executed.
-        launch_arguments={
-            'node_options': LaunchConfiguration('fork_position_controller_server_node_options'),
-            'node_logging_options': LaunchConfiguration('fork_position_controller_server_node_logging_options'),
         }.items(),
     )
 

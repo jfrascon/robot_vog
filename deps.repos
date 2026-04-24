@@ -12,7 +12,7 @@ repositories:
     fork_position_controller_server:
         type: git
         url: https://github.com/jfrascon/fork_position_controller_server.git
-        version: eff12336cfca0b2b20ae8f7a599ed99635b1ff39
+        version: 241a6f219e29b0f0aeb0d220643eea52715ade77
         #exclude: [] # list of repos files inside repository_path to exclude (optional)
     ground_vehicle_kinematics:
         type: git
