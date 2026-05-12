@@ -13,25 +13,13 @@ The file `includes/common.xacro` is not a public robot model. It is an internal
 Xacro file that is included by the public robot models, and it defines the
 arguments that are shared by every model of the family.
 
-Each public robot model therefore uses:
-- the arguments defined in `includes/common.xacro`
-- plus any extra arguments defined in the Xacro file of that specific model
+Each public robot model has one complete YAML file named
+`xargs/model_<robot_model>.yaml`. That YAML file lists every `xacro:arg`
+exposed by the public model, including arguments that are defined in internal
+Xacro includes such as `includes/common.xacro`.
 
-To declare launch arguments for those `xacro:arg` entries, this package uses
-an internal YAML-based system:
-- `xargs/common.yaml` stores the arguments shared by all public robot models
-- `xargs/model_<robot_model>.yaml` stores the arguments specific to one public
-  robot model when that model defines additional arguments
-
-When the launch code asks for the arguments of one public robot model, this
-module resolves them as:
-- the arguments from `common.yaml` if that file exists
-- plus the arguments from `model_<robot_model>.yaml` if that file exists
-
-One public robot model therefore has internal xargs if at least one of these
-files exists:
-- `xargs/common.yaml`
-- `xargs/model_<robot_model>.yaml`
+The YAML files are the launch-facing contract. Xacro files may reuse includes,
+but launch code loads one complete YAML file for the selected public model.
 """
 
 from pathlib import Path
@@ -134,7 +122,7 @@ def model_has_xargs(robot_model: str) -> bool:
     if not model_exists(robot_model):
         return False
 
-    return _xargs_file_exists('common') or _xargs_file_exists(robot_model)
+    return _xargs_file_exists(robot_model)
 
 
 def _check_xarg_fields(xarg_name: str, xarg_cfg: Dict[str, Any], xargs_file: Path) -> None:
@@ -216,33 +204,8 @@ def _get_xargs(robot_model: str) -> Dict[str, Dict[str, Any]]:
     if not model_has_xargs(robot_model):
         return {}
 
-    common_xargs: Dict[str, Dict[str, Any]] = {}
-
-    # Resolve the xargs of one public model as:
-    # - the arguments from common.yaml when that file exists
-    # - plus the arguments from model_<robot_model>.yaml when that file exists
-    # If the model-specific YAML does not exist, the model uses only the common
-    # arguments.
-    # Both YAML files must define disjoint xargs. If the same xarg appears in
-    # both files, this is a model design mistake and the code fails before
-    # performing the merge.
-    if _xargs_file_exists('common'):
-        common_xargs = _load_xargs_yaml('common.yaml')
-
-    if not _xargs_file_exists(robot_model):
-        return common_xargs
-
     model_xargs_file = _get_model_xargs_filename(robot_model)
-    model_xargs = _load_xargs_yaml(model_xargs_file)
-
-    duplicated_xargs = set(common_xargs).intersection(model_xargs)
-
-    if duplicated_xargs:
-        raise ValueError(
-            f"Xargs are duplicated between 'common.yaml' and '{model_xargs_file}': {sorted(duplicated_xargs)}"
-        )
-
-    return {**common_xargs, **model_xargs}
+    return _load_xargs_yaml(model_xargs_file)
 
 
 def _get_xargs_dir() -> Path:
@@ -264,8 +227,8 @@ def _load_xargs_yaml(xargs_file: str) -> Dict[str, Dict[str, Any]]:
     """
     Load xargs directly from one internal YAML filename.
     """
-    # The argument is the YAML filename itself, for example 'common.yaml' or
-    # 'model_forklift.yaml'. The file content is a YAML mapping of xarg names
+    # The argument is the YAML filename itself, for example 'model_forklift.yaml'.
+    # The file content is a YAML mapping of xarg names
     # to their configurations.
     xargs_file_path = _get_xargs_dir().joinpath(xargs_file)
 
@@ -300,9 +263,5 @@ def _xargs_file_exists(name: str) -> bool:
     """
     Return whether one internal xargs YAML file exists.
     """
-    if name == 'common':
-        filename = 'common.yaml'
-    else:
-        filename = _get_model_xargs_filename(name)
-
+    filename = _get_model_xargs_filename(name)
     return _get_xargs_dir().joinpath(filename).is_file()

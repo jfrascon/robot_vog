@@ -65,6 +65,7 @@ model name:
 Inside the file tree, the model files use `model_<robot_model>`:
 - `model_base.xacro`
 - `model_forklift.xacro`
+- `model_base.yaml`
 - `model_forklift.yaml`
 
 This package therefore separates:
@@ -74,15 +75,16 @@ This package therefore separates:
 
 ## Xargs
 
-The xargs system uses:
-- [robot_vog/xargs/common.yaml](robot_vog/xargs/common.yaml)
+The xargs system uses one complete YAML file for each public model:
+- [robot_vog/xargs/model_base.yaml](robot_vog/xargs/model_base.yaml)
 - [robot_vog/xargs/model_forklift.yaml](robot_vog/xargs/model_forklift.yaml)
 
-`common.yaml` stores the arguments shared by every model in the family.
-`model_forklift.yaml` stores the arguments that are specific to the
-`forklift` model.
+Each `model_<robot_model>.yaml` file lists every `xacro:arg` exposed by that
+public model. The YAML file includes arguments defined by internal Xacro
+includes such as `urdf/includes/common.xacro`.
 
-`base` has no model-specific xargs file, so it uses only `common.yaml`.
+`common.xacro` remains an internal URDF reuse point. It is not a public robot
+model and it does not have a launch-facing xargs YAML file.
 
 ## Example Configuration Files
 
@@ -130,5 +132,5 @@ ros2 launch robot_vog model_base.launch.py --show-args
 ```
 
 `--show-args` does not include the xargs that are declared dynamically after
-the selected model is known. Those dynamic xargs come from `common.yaml` plus
-the matching `model_<robot_model>.yaml` file when it exists.
+the selected model is known. Those dynamic xargs come from the complete
+`model_<robot_model>.yaml` file for the selected public model.

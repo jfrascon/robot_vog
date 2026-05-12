@@ -39,7 +39,7 @@ def test_model_has_xargs_matches_current_xargs_files() -> None:
     assert not model_utils.model_has_xargs('arm')
 
 
-def test_common_xargs_match_common_xacro_args() -> None:
+def test_base_xargs_match_common_xacro_args() -> None:
     common_arg_names = _xacro_arg_names(PACKAGE_DIR / 'urdf' / 'includes' / 'common.xacro') - RESERVED_LAUNCH_ARGS
 
     assert set(model_utils.get_xarg_names('base')) == common_arg_names
@@ -54,12 +54,14 @@ def test_forklift_xargs_match_common_and_fork_module_xacro_args() -> None:
     assert set(model_utils.get_xarg_names('forklift')) == merged_arg_names
 
 
-def test_common_xargs_defaults_match_common_xacro_defaults() -> None:
+def test_base_xargs_defaults_match_common_xacro_defaults() -> None:
     xacro_defaults = _xacro_arg_defaults(PACKAGE_DIR / 'urdf' / 'includes' / 'common.xacro')
     xacro_defaults = {k: v for k, v in xacro_defaults.items() if k not in RESERVED_LAUNCH_ARGS}
 
+    xargs = model_utils._get_xargs('base')
+
     for xarg_name in xacro_defaults:
-        assert model_utils._load_xargs_yaml('common.yaml')[xarg_name]['default_value'] == xacro_defaults[xarg_name]
+        assert xargs[xarg_name]['default_value'] == xacro_defaults[xarg_name]
 
 
 def test_forklift_xargs_defaults_match_xacro_defaults() -> None:
