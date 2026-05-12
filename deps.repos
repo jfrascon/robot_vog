@@ -17,7 +17,7 @@ repositories:
     ground_vehicle_kinematics:
         type: git
         url: https://github.com/jfrascon/ground_vehicle_kinematics.git
-        version: a05d1f8c1a6e48a0d38af09ebc7aeae49631e6ac
+        version: 82b640533bcb164cb12b8a4b7ca7dc1d7660eae3
         #exclude: [] # list of repos files inside repository_path to exclude (optional)
     robotics_description:
         type: git
